@@ -1,24 +1,11 @@
 #include "bitBuffer.h"
 
-// Struct que define o byte
 struct bitBuffer {
     int size;       // Tamanho do vetor de chars (ou seja, do buffer)
     int occupied;   // bits ocupados pelos códigos em todo o buffer
     unsigned char *buffer;
 };
 
-// Função auxliar que eseta todos os bytes no bitBuffer para 
-bool bitBufferClean(BITBUFFER *bitBuffer) {
-    if(bitBuffer == NULL)
-        return false;
-
-    for(int i = 0; i < bitBuffer->size; i++){
-        bitBuffer->buffer = 0;
-    }
-    bitBuffer->occupied = 0;
-
-    return true;
-}
 
 BITBUFFER *bitBufferCreate(int size) {
     BITBUFFER *bitBuffer;
@@ -30,8 +17,7 @@ BITBUFFER *bitBufferCreate(int size) {
     
     // Inicializando os valores e alocando o vetor interno
     bitBuffer->size = size;
-    bitBuffer->occupied = 0;
-    bitBuffer->buffer = (char *) malloc(size * sizeof(char));
+    bitBuffer->buffer = (unsigned char *) malloc(size * sizeof(unsigned char));
     if(bitBuffer->buffer == NULL) {
         free(bitBuffer);
         bitBuffer = NULL;
@@ -42,7 +28,8 @@ BITBUFFER *bitBufferCreate(int size) {
     return bitBuffer;
 }
 
-bool bitBufferIsEmpity(BITBUFFER *bitBuffer) {
+// Função que verifica se o bitBuffer está vazio
+bool bitBufferIsEmpty(BITBUFFER *bitBuffer) {
     if(bitBuffer == NULL)
         return false;
     
@@ -51,13 +38,24 @@ bool bitBufferIsEmpity(BITBUFFER *bitBuffer) {
     return false;
 }
 
+// Função que retorna no número de bytes preenchidos no buffer
+int bitBufferGetByteSize(BITBUFFER *bitBuffer) {
+    if(bitBuffer == NULL)
+        return BITBUFFER_ERROR;
+
+    if(bitBuffer->occupied % 8 != 0)
+        return (bitBuffer->occupied / 8) + 1; //Ocorre apenas ao fim do arquivo
+    else
+        return (bitBuffer->occupied / 8);
+}
+
 // Dado um código especificado em uma string, esta função o insere no buffer
 // utilizando operações bitwise para a correta escrita no arquivo
 bool bitBufferInsert(BITBUFFER *bitBuffer, unsigned char *code, int size, FILE *pf) {
     if(bitBuffer == NULL)
         return false;
 
-    int currIndex = bitBufferGetSize(bitBuffer);
+    int currIndex = bitBufferGetByteSize(bitBuffer);
 
     for(int i; i < size; i++) {
         bitBuffer->buffer[currIndex] = bitBuffer->buffer[currIndex] << 1;
@@ -74,21 +72,24 @@ bool bitBufferInsert(BITBUFFER *bitBuffer, unsigned char *code, int size, FILE *
                 currIndex = 0;
             }
         }
-
-        return true;
     }
+    return true;
 }
 
-int bitBufferGetByteSize(BITBUFFER *bitBuffer) {
+// Função que eseta todos os bytes no bitBuffer para 
+bool bitBufferClean(BITBUFFER *bitBuffer) {
     if(bitBuffer == NULL)
-        return NULL;
+        return false;
 
-    if(bitBuffer->occupied % 8 != 0)
-        return (bitBuffer->occupied / 8) + 1; //Ocorre apenas ao fim do arquivo
-    else
-        return (bitBuffer->occupied / 8);
+    for(int i = 0; i < bitBuffer->size; i++){
+        bitBuffer->buffer[i] = 0;
+    }
+    bitBuffer->occupied = 0;
+
+    return true;
 }
 
+// Função que escreve os conteúdos do bitBuffer em um arquivo já aberto
 bool bitBufferWrite(BITBUFFER *bitBuffer, FILE *pf) {
     if(bitBuffer == NULL || pf == NULL)
         return false;
@@ -109,16 +110,21 @@ bool bitBufferWrite(BITBUFFER *bitBuffer, FILE *pf) {
 
 // Função auxiliar para printar os bytes do bit buffer em binário little endian
 void printCharBinaryLE(unsigned char c) {
+    printf("Aqui estou eu!");
+    printf("%c", c);
+
     for (int i = 0; i < 8; i++) {
         // Print the least significant bit first
         printf("%d", (c >> i) & 1);
     }
     printf("\n");
+    return;
 }
 
 void bitBufferPrint(BITBUFFER *bitBuffer) {
     if(bitBuffer == NULL)
         return;
+
 
     for(int i = 0; i < bitBuffer->size; i++) {
         printCharBinaryLE(bitBuffer->buffer[i]);

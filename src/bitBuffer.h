@@ -4,12 +4,17 @@
     #include <stdlib.h>
     #include <stdbool.h>
 
+    #define BITBUFFER_ERROR -3200
+
+    // Buffer de unsigned chars para guardar os bits do código comprimido
     typedef struct bitBuffer BITBUFFER;
 
     BITBUFFER *bitBufferCreate(int size);
-    bool bitBufferIsEmpity(BITBUFFER *bitBuffer);
+    bool bitBufferIsEmpty(BITBUFFER *bitBuffer);
 
-    bool bitBufferInsert(BITBUFFER *bitBuffer, unsigned char *code);
+    int bitBufferGetByteSize(BITBUFFER *bitBuffer);
+    bool bitBufferInsert(BITBUFFER *bitBuffer, unsigned char *code, int size, FILE *pf);
+    bool bitBufferClean(BITBUFFER *bitBuffer);
     bool bitBufferWrite(BITBUFFER *bitBuffer, FILE *pf);
 
     void bitBufferPrint(BITBUFFER *bitBuffer);
@@ -27,6 +32,6 @@ DEPENDENCIAS DESTE TAD:
     Depende de receber um ponteiro para arquivo aberto
 
 --> bitBufferWrite:
-    depende de receber um ponteiro para arquivo aberto
+    depende de receber um ponteiro para arquivo ABERTO
 
 */
