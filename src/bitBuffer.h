@@ -10,10 +10,11 @@
     typedef struct bitBuffer BITBUFFER;
 
     BITBUFFER *bitBufferCreate(int size);
+
     bool bitBufferIsEmpty(BITBUFFER *bitBuffer);
 
     int bitBufferGetByteSize(BITBUFFER *bitBuffer);
-    bool bitBufferInsert(BITBUFFER *bitBuffer, unsigned char *code, int size, FILE *pf);
+    bool bitBufferInsert(BITBUFFER *bitBuffer, unsigned int *code, int size, FILE *pf);
     bool bitBufferClean(BITBUFFER *bitBuffer);
     bool bitBufferWrite(BITBUFFER *bitBuffer, FILE *pf);
 
@@ -27,7 +28,7 @@
 /*
 DEPENDENCIAS DESTE TAD:
 --> bitBufferInsert:
-    code deve ser uma string que recebeu o valos (int) 0 ou 1 (não (char) '0' ou '1')
+    code deve ser uma string que recebeu o valor (int) 0 ou 1 (não (char) '0' ou '1')
     Decidimos que, caso o vetor acabe, vamos chamar o write e depois clean
     Depende de receber um ponteiro para arquivo aberto
 

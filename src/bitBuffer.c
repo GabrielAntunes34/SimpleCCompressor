@@ -6,7 +6,7 @@ struct bitBuffer {
     unsigned char *buffer;
 };
 
-
+// Cria um buffer de n bytes
 BITBUFFER *bitBufferCreate(int size) {
     BITBUFFER *bitBuffer;
 
@@ -51,13 +51,14 @@ int bitBufferGetByteSize(BITBUFFER *bitBuffer) {
 
 // Dado um código especificado em uma string, esta função o insere no buffer
 // utilizando operações bitwise para a correta escrita no arquivo
-bool bitBufferInsert(BITBUFFER *bitBuffer, unsigned char *code, int size, FILE *pf) {
-    if(bitBuffer == NULL)
+bool bitBufferInsert(BITBUFFER *bitBuffer, unsigned int *code, int size, FILE *pf) {
+    if(bitBuffer == NULL || pf == NULL)
         return false;
 
     int currIndex = bitBufferGetByteSize(bitBuffer);
 
-    for(int i; i < size; i++) {
+    for(int i = 0; i < size; i++) {
+        // Desloca todos os bits para a esquerda e imprime o valor no menos significativo
         bitBuffer->buffer[currIndex] = bitBuffer->buffer[currIndex] << 1;
         bitBuffer->buffer[currIndex] = bitBuffer->buffer[currIndex] | code[i];
 
@@ -67,7 +68,7 @@ bool bitBufferInsert(BITBUFFER *bitBuffer, unsigned char *code, int size, FILE *
             currIndex++;
 
             // Caso em que o próximo valor ultrapassa o limite do buffer
-            if(currIndex > bitBuffer->size) {
+            if(currIndex >= bitBuffer->size) {
                 bitBufferWrite(bitBuffer, pf);
                 currIndex = 0;
             }
@@ -99,8 +100,16 @@ bool bitBufferWrite(BITBUFFER *bitBuffer, FILE *pf) {
     indexes = bitBufferGetByteSize(bitBuffer);
     
     // Escrevendo cada byte ocupado no arquivo.
+    // Para o último byte verificamos se ele está completamente cheio. Se sim
+    // O byte formado será escrito de trás para frente, com os zeros que sobram
+    // Sendo considerados descartáveis no arquivo
     for(int i = 0; i < indexes; i++) {
+        if((i == (indexes - 1)) && (bitBuffer->occupied % 8 != 0)) {
+            printf("\nFinal shift: %d\n", (8 - (bitBuffer->occupied % 8)));
+            bitBuffer->buffer[i] = bitBuffer->buffer[i] << (8 - (bitBuffer->occupied % 8)); 
+        }
         fwrite(&bitBuffer->buffer[i], sizeof(char), 1, pf);
+
     }
 
     bitBufferClean(bitBuffer);
@@ -109,26 +118,26 @@ bool bitBufferWrite(BITBUFFER *bitBuffer, FILE *pf) {
 
 
 // Função auxiliar para printar os bytes do bit buffer em binário little endian
-void printCharBinaryLE(unsigned char c) {
-    printf("Aqui estou eu!");
-    printf("%c", c);
-
-    for (int i = 0; i < 8; i++) {
-        // Print the least significant bit first
+void printCharBinaryBE(unsigned char c) {
+    // Desloca cada bit para a posição menos significativa
+    // e executa & para obter seu valor na impressão
+    for (int i = 7; i >= 0; i--) {
         printf("%d", (c >> i) & 1);
     }
-    printf("\n");
     return;
 }
 
+// Imprime em binário o valor de cada byte, além das propriedades do buffer
 void bitBufferPrint(BITBUFFER *bitBuffer) {
     if(bitBuffer == NULL)
         return;
 
-
     for(int i = 0; i < bitBuffer->size; i++) {
-        printCharBinaryLE(bitBuffer->buffer[i]);
+        printf("[%d]: ", i);
+        printCharBinaryBE(bitBuffer->buffer[i]);
+        printf("\n");
     }
+    printf("Occupation: %d of %d\n", bitBuffer->occupied + 1, (bitBuffer->size * 8));
 
     return;
 }

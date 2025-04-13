@@ -5,25 +5,24 @@
 int main() {
     FILE *pf;
     BITBUFFER *bf;
-    unsigned char str[5] = "alfa";
+    unsigned int str[24] = {1, 1, 0, 1, 1, 1, 0, 0,
+        1, 1, 0, 1, 1, 0, 1, 0,
+        1, 1, 1, 0, 1, 0, 1, 1};
 
-    bf = bitBufferCreate(6);
-    
+    bf = bitBufferCreate(2);
+
+    pf = fopen("test.bin", "wb");
+    if(pf == NULL)
+        return -1;
+
     if(bitBufferIsEmpty(bf)) {
-        bitBufferInsert(bf, str, 4, pf);
+        bitBufferInsert(bf, str, 24, pf);
     }
-    
-
-    printf("oi 2\n");
-
 
     bitBufferPrint(bf);
+    bitBufferWrite(bf, pf);
 
-    printf("oi 3\n");
-
-
-    //bitBufferWrite(bf, pf);
-
+    fclose(pf);
     bitBufferDestroy(&bf);
     return 0;
 }
