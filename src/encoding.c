@@ -55,6 +55,43 @@ number* zigZagNxN(number *matrix[N]) {
     return zigZag;
 }
 
+number** unZigZagNxN(number *zigZag) {
+    number **matrix = (number **)malloc(N * sizeof(number *));
+    for (int i = 0; i < N; i++) {
+        matrix[i] = (number *)malloc(N * sizeof(number));
+    }
+    int i = 0, j = 0, index = 0;
+    // Preenche a matriz com os valores do vetor zigZag
+    while(index < N * N){
+        // Verifica se a posição atual está dentro dos limites da matriz
+        if(i >= 0 && i < N && j >= 0 && j < N) {
+            matrix[i][j] = zigZag[index++];
+        }
+
+        // Move na diagonal
+        if((i + j) % 2 == 0) {
+            if(j == N - 1) {
+                i++;
+            } else if(i == 0) {
+                j++;
+            } else {
+                i--;
+                j++;
+            }
+        } else {
+            if(i == N - 1) {
+                j++;
+            } else if(j == 0) {
+                i++;
+            } else {
+                i++;
+                j--;
+            }
+        }
+    }
+    return matrix;
+}
+
 //codificação por diferença do vetor zigZag
 number* zigZagDifference(number *zigZag) {
     number *zigZagDiff = (number *)malloc(N * N * sizeof(number));
@@ -70,6 +107,24 @@ number* zigZagDifference(number *zigZag) {
     zigZagDiff[0] = zigZag[0];
     for (int i = 1; i < N * N; i++) {
         zigZagDiff[i] = zigZag[i] - zigZag[i - 1];
+    }
+    return zigZagDiff;
+}
+
+number* unZigZagDifference(number *zigZag) {
+    number *zigZagDiff = (number *)malloc(N * N * sizeof(number));
+    if (zigZagDiff == NULL) {
+        printf("Erro ao alocar memória para o vetor zigZagDiff.\n");
+        return NULL;
+    }
+    // Inicializa o vetor zigZagDiff com zeros
+    for (int k = 0; k < N * N; k++) {
+        zigZagDiff[k] = 0;
+    }
+    // Preenche o vetor zigZagDiff com as diferenças
+    zigZagDiff[0] = zigZag[0];
+    for (int i = 1; i < N * N; i++) {
+        zigZagDiff[i] = zigZag[i] + zigZagDiff[i - 1];
     }
     return zigZagDiff;
 }
@@ -115,6 +170,31 @@ RLEPairs runLengthEncoding(number *zigZag, int *size) {
     return rle;
 }
 
+//RunLength Decoding (RLD) para descompressão de dados
+number* runLengthDecoding(RLEPairs rle) {
+    number *zigZag = (number *)malloc(N * N * sizeof(number));
+    if (zigZag == NULL) {
+        printf("Erro ao alocar memória para o vetor zigZag.\n");
+        return NULL;
+    }
+    // Inicializa o vetor zigZag com zeros
+    for (int k = 0; k < N * N; k++) {
+        zigZag[k] = 0;
+    }
+    int index = 0;
+    for (int i = 0; i < rle->size; i++) {
+        for (int j = 0; j < rle->pairs[i].run; j++) {
+            zigZag[index++] = 0;
+        }
+        if (rle->pairs[i].level != EOB) {
+            zigZag[index++] = rle->pairs[i].level;
+        } else {
+            break;
+        }
+    }
+    return zigZag;
+}
+
 /*
 ==========================
 FUNÇÕES DE TESTE
@@ -138,35 +218,9 @@ number **generateRandomMatrix() {
 }
 
 //Função de teste que gera uma matriz aleatória, imprime-a, converte para zigzag e imprime o resultado
-void testZigZag() {
-    number **matrix = generateRandomMatrix();
-    number *zigZag;
-
-    printf("Matriz NxN:\n");
-    for (int i = 0; i < N; i++) {
-        for (int j = 0; j < N; j++) {
-            printf("%3d ", matrix[i][j]);
-        }
-        printf("\n");
-    }
-
-    zigZag = zigZagNxN(matrix);
-
-    printf("\nVetor ZigZag:\n");
-    for (int i = 0; i < 64; i++) {
-        printf("%3d ", zigZag[i]);
-    }
-    printf("\n");
-
-    // Libera a memória alocada
-    for (int i = 0; i < 8; i++) {
-        free(matrix[i]);
-    }
-    free(matrix);
-}
 
 //Função de teste que gera uma matriz aleatória, imprime-a, aplica RLE e imprime o resultado
-void testRLE() {
+void testEncodingDecoding() {
     number **matrix = generateRandomMatrix();
     number *zigZag;
     RLEPairs rlePairs;
@@ -202,6 +256,33 @@ void testRLE() {
         printf("Run: %d, Level: %d\n", rlePairs->pairs[i].run, rlePairs->pairs[i].level);
     }
 
+    number *zigZagDec = runLengthDecoding(rlePairs);
+
+
+    printf("\nVetor ZigZag Decodificado:\n");
+    for (int i = 0; i < 64; i++) {
+        printf("%3d ", zigZagDec[i]);
+    }
+    printf("\n");
+
+    zigZagDec = unZigZagDifference(zigZagDec);
+
+    printf("\nVetor ZigZag Decodificado:\n");
+    for (int i = 0; i < 64; i++) {
+        printf("%3d ", zigZagDec[i]);
+    }
+    printf("\n");
+
+    number **matrixDec = unZigZagNxN(zigZagDec);
+
+    printf("\nMatriz Decodificada:\n");
+    for (int i = 0; i < N; i++) {
+        for (int j = 0; j < N; j++) {
+            printf("%3d ", matrixDec[i][j]);
+        }
+        printf("\n");
+    }
+
     // Libera a memória alocada
     for (int i = 0; i < 8; i++) {
         free(matrix[i]);
@@ -211,6 +292,6 @@ void testRLE() {
 
 // Função principal para testar a conversão zigzag
 int main() {
-    testRLE();
+    testEncodingDecoding();
     return 0;
 }
