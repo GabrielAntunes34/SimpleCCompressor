@@ -128,16 +128,18 @@ void printCharBinaryBE(unsigned char c) {
 }
 
 // Imprime em binário o valor de cada byte, além das propriedades do buffer
-void bitBufferPrint(BITBUFFER *bitBuffer) {
+void bitBufferPrint(const void *bitBuffer) {
     if(bitBuffer == NULL)
         return;
 
-    for(int i = 0; i < bitBuffer->size; i++) {
+    BITBUFFER *bf = (BITBUFFER *) bitBuffer;
+
+    for(int i = 0; i < bf->size; i++) {
         printf("[%d]: ", i);
-        printCharBinaryBE(bitBuffer->buffer[i]);
+        printCharBinaryBE(bf->buffer[i]);
         printf("\n");
     }
-    printf("Occupation: %d of %d\n", bitBuffer->occupied + 1, (bitBuffer->size * 8));
+    printf("Occupation: %d of %d\n", bf->occupied + 1, (bf->size * 8));
 
     return;
 }

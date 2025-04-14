@@ -8,6 +8,7 @@
 
     // Buffer de unsigned chars para guardar os bits do código comprimido
     typedef struct bitBuffer BITBUFFER;
+    typedef struct bitBuffer bitBuffer;
 
     BITBUFFER *bitBufferCreate(int size);
 
@@ -18,7 +19,7 @@
     bool bitBufferClean(BITBUFFER *bitBuffer);
     bool bitBufferWrite(BITBUFFER *bitBuffer, FILE *pf);
 
-    void bitBufferPrint(BITBUFFER *bitBuffer);
+    void bitBufferPrint(const void *bitBuffer);
     bool bitBufferDestroy(BITBUFFER **bitBuffer);
 
 #endif
