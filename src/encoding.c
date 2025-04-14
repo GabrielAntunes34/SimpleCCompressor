@@ -1,8 +1,23 @@
 #include "encoding.h"
 
+struct rlepair {
+    int run;
+    int level;
+};
+
 //Função que converte uma matriz 8x8 em um vetor 1D fazendo zigzag com o bloco da DCT para compressão
-void zigZagNxN(number *matrix[N], number zigZag[N * N]) {
+number* zigZagNxN(number *matrix[N]) {
     int i = 0, j = 0, index = 0;
+    number *zigZag = (number *)malloc(N * N * sizeof(number));
+    if (zigZag == NULL) {
+        printf("Erro ao alocar memória para o vetor zigZag.\n");
+        return NULL;
+    }
+    // Inicializa o vetor zigZag com zeros
+    for (int k = 0; k < N * N; k++) {
+        zigZag[k] = 0;
+    }
+    // Preenche o vetor zigZag com os valores da matriz
     while(index < N * N){
         // Verifica se a posição atual está dentro dos limites da matriz
         if(i >= 0 && i < N && j >= 0 && j < N) {
@@ -30,6 +45,7 @@ void zigZagNxN(number *matrix[N], number zigZag[N * N]) {
             }
         }
     }
+    return zigZag;
 }
 
 /*
@@ -53,7 +69,7 @@ number **generateRandomMatrix() {
 //Função de teste que gera uma matriz aleatória, imprime-a, converte para zigzag e imprime o resultado
 void testZigZag() {
     number **matrix = generateRandomMatrix();
-    number zigZag[64];
+    number *zigZag;
 
     printf("Matriz NxN:\n");
     for (int i = 0; i < N; i++) {
@@ -63,7 +79,7 @@ void testZigZag() {
         printf("\n");
     }
 
-    zigZagNxN(matrix, zigZag);
+    zigZag = zigZagNxN(matrix);
 
     printf("\nVetor ZigZag:\n");
     for (int i = 0; i < 64; i++) {

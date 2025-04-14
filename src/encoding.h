@@ -6,9 +6,12 @@
 
     #define BITBUFFER_ERROR -3200
     #define N 8 // Tamanho da matriz NxN
+    #define EOB (-1)
 
     typedef int number;
+    typedef struct rlepair RLEPair;
 
-    void zigZagNxN(number *matrix[N], number zigZag[N * N]);
+
+    number* zigZagNxN(number *matrix[N]);
 
 #endif
