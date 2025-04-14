@@ -55,6 +55,25 @@ number* zigZagNxN(number *matrix[N]) {
     return zigZag;
 }
 
+//codificação por diferença do vetor zigZag
+number* zigZagDifference(number *zigZag) {
+    number *zigZagDiff = (number *)malloc(N * N * sizeof(number));
+    if (zigZagDiff == NULL) {
+        printf("Erro ao alocar memória para o vetor zigZagDiff.\n");
+        return NULL;
+    }
+    // Inicializa o vetor zigZagDiff com zeros
+    for (int k = 0; k < N * N; k++) {
+        zigZagDiff[k] = 0;
+    }
+    // Preenche o vetor zigZagDiff com as diferenças
+    zigZagDiff[0] = zigZag[0];
+    for (int i = 1; i < N * N; i++) {
+        zigZagDiff[i] = zigZag[i] - zigZag[i - 1];
+    }
+    return zigZagDiff;
+}
+
 //Cria um RLEPairs
 RLEPairs createRLEPairs(int size) {
     RLEPairs rlePairs = (RLEPairs)malloc(sizeof(rlepairs));
@@ -161,6 +180,14 @@ void testRLE() {
     }
 
     zigZag = zigZagNxN(matrix);
+
+    printf("\nVetor ZigZag:\n");
+    for (int i = 0; i < 64; i++) {
+        printf("%3d ", zigZag[i]);
+    }
+    printf("\n");
+
+    zigZag = zigZagDifference(zigZag);
 
     printf("\nVetor ZigZag:\n");
     for (int i = 0; i < 64; i++) {
