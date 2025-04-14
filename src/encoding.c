@@ -1,9 +1,16 @@
 #include "encoding.h"
 
-struct rlepair {
+typedef struct rlepair_ {
     int run;
     int level;
-};
+} rlepair;
+typedef rlepair *RLEPair;
+
+typedef struct rlepairs_ {
+    RLEPair pairs;
+    int size;
+} rlepairs;
+typedef rlepairs *RLEPairs;
 
 //Função que converte uma matriz 8x8 em um vetor 1D fazendo zigzag com o bloco da DCT para compressão
 number* zigZagNxN(number *matrix[N]) {
@@ -48,6 +55,47 @@ number* zigZagNxN(number *matrix[N]) {
     return zigZag;
 }
 
+//Cria um RLEPairs
+RLEPairs createRLEPairs(int size) {
+    RLEPairs rlePairs = (RLEPairs)malloc(sizeof(rlepairs));
+    if (rlePairs == NULL) {
+        printf("Erro ao alocar memória para RLEPairs.\n");
+        return NULL;
+    }
+    rlePairs->pairs = (RLEPair)malloc(size * sizeof(rlepair));
+    if (rlePairs->pairs == NULL) {
+        printf("Erro ao alocar memória para os pares RLE.\n");
+        free(rlePairs);
+        return NULL;
+    }
+    rlePairs->size = size;
+    return rlePairs;
+}
+
+
+//Run Length Encoding (RLE) para compressão de dados
+RLEPairs runLengthEncoding(number *zigZag, int *size) {
+    RLEPairs rle = createRLEPairs(N * N);
+    int index = 0;
+    int count = 0;
+    for (int i = 0; i < N * N; i++) {
+        if (zigZag[i] == 0) {
+            count++;
+        } else {
+            rle->pairs[index].run = count;
+            rle->pairs[index].level = zigZag[i];
+            index++;
+            count = 0;
+        }
+    }
+    rle->pairs[index].run = EOB; // Último run
+    rle->pairs[index].level = 0; // Indica o fim do bloco
+    index++;
+
+    rle->size = index; // Tamanho do vetor RLE
+    return rle;
+}
+
 /*
 ==========================
 FUNÇÕES DE TESTE
@@ -60,7 +108,11 @@ number **generateRandomMatrix() {
     for (int i = 0; i < N; i++) {
         matrix[i] = (number *)malloc(N * sizeof(number));
         for (int j = 0; j < N; j++) {
-            matrix[i][j] = rand() % 256; // Valores aleatórios entre 0 e 255
+            if (rand() % 2 == 0) {
+                matrix[i][j] = 0; // Zeros para simular a compressão
+            } else {
+                matrix[i][j] = rand() % 256; // Valores aleatórios entre 0 e 255
+            }
         }
     }
     return matrix;
@@ -94,8 +146,44 @@ void testZigZag() {
     free(matrix);
 }
 
+//Função de teste que gera uma matriz aleatória, imprime-a, aplica RLE e imprime o resultado
+void testRLE() {
+    number **matrix = generateRandomMatrix();
+    number *zigZag;
+    RLEPairs rlePairs;
+
+    printf("Matriz NxN:\n");
+    for (int i = 0; i < N; i++) {
+        for (int j = 0; j < N; j++) {
+            printf("%3d ", matrix[i][j]);
+        }
+        printf("\n");
+    }
+
+    zigZag = zigZagNxN(matrix);
+
+    printf("\nVetor ZigZag:\n");
+    for (int i = 0; i < 64; i++) {
+        printf("%3d ", zigZag[i]);
+    }
+    printf("\n");
+
+    rlePairs = runLengthEncoding(zigZag, NULL);
+
+    printf("\nPares RLE:\n");
+    for (int i = 0; i < rlePairs->size; i++) {
+        printf("Run: %d, Level: %d\n", rlePairs->pairs[i].run, rlePairs->pairs[i].level);
+    }
+
+    // Libera a memória alocada
+    for (int i = 0; i < 8; i++) {
+        free(matrix[i]);
+    }
+    free(matrix);
+}
+
 // Função principal para testar a conversão zigzag
 int main() {
-    testZigZag();
+    testRLE();
     return 0;
 }
