@@ -1,15 +1,15 @@
-#ifndef VECTOR_H
-    #define VECTOR_H
+#pragma once
     #include <stdio.h>
     #include <stdlib.h>
     #include <stdbool.h>
+    #include "util.h"
 
     // Macros para manter o uso "typesafe"
     // E abstrair o uso dos ponteiros genéricos
     #define VECTOR_ERROR -3201
-    #define vectorCreateAs(type, elemDestroy) vectorCreate(sizeof(type), elemDestroy)
-    #define vectorIndexAs(vec, type, index) (*(type *)vectorIndex(vec, index))
-    #define vectorPrintAs(vec, type) vectorPrint(vec, type##Print)
+    #define vectorCreateAs(type, elemDestroy) vector_create(sizeof(type), elemDestroy)
+    #define vectorIndexAs(vec, type, index) (*(type *)vector_index(vec, index))
+    #define vectorPrintAs(vec, type) vector_print(vec, type##Print)
 
 
     // Vector é um array genérico e memory safe.
@@ -29,7 +29,7 @@
     void vector_print(VECTOR *vec, void (printElem)(const void*));
     void vectorDestroy(VECTOR **vec);
 
-#endif
+
 
 /*
 --- UTILIZAÇÃO DO VECTOR GENÉRICO ---
@@ -49,6 +49,7 @@ um ponterio do tipo
 
 --> Interface para usá-lo com um TAD:
 - Deve ser encapsulado com ponterio opaco
+- Assim, vector guardará o endereço do ponteiro para o TAD
 - deve conter no .h as sequintes definições:
     - typedef struct nomeDoTad nomeDoTad;
     - void nomeDoTadPrint(const void *tad);

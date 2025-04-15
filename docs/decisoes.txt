@@ -1,0 +1,19 @@
+--- ARQUITETURA DO SISTEMA ---
+--> Camadas
+
+- FileManager --> Cuida do i/o dos arquivos e é o ponto de interação para
+comprimí-los e descomprimí-los
+
+- Compressor --> Implementa algorítimos de compressão JPEG e TADS específicos para eles
+
+- Primitives --> Implementa TAD's para tipos importantes no contexto de imagens, algumas
+estruturas úteis so longo do código e um arquivo "util" com funções compartilhadas
+pelos módulos
+
+- main: Ponto de acesso do usuário, com interace em terminal
+
+
+--- OUTROS ---
+- A maioria dos TAD'S estão encapsulados, com excessão daqueles que julgamos ser
+estáveis o suficiente para tornar seus campos públicos e ter menos boilerplate
+(como os header files)

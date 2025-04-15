@@ -4,8 +4,6 @@
 #define VECTOR_INITAL_CAPACITY 4
 
 
-//*((type) vector->data + index * vec->elemSize);
-
 struct vector {
     void *data;         // Ponteiro para o array de dados genéricos
     size_t elemSize;    // Tamanho em bytes do tipo de dado usado

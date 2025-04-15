@@ -1,5 +1,7 @@
 #include "util.h"
 
+// Recebe um ponteiro e casta para int nu e cru
+
 //////////////////////////////////////
 // PRINTS INTERNOS PARA TIPOS BÁSICOS
 //////////////////////////////////////
