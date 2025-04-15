@@ -291,7 +291,7 @@ void testEncodingDecoding() {
 }
 
 // Função principal para testar a conversão zigzag
-int main() {
+/*int main() {
     testEncodingDecoding();
     return 0;
-}
+}*/
