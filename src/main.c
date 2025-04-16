@@ -4,23 +4,48 @@
 #include "primitives/vector.h"
 #include "primitives/util.h"
 
+#include "fileManager/bfHeader.h"
+#include "fileManager/bfInfoHeader.h"
+
+void testBfHeader(char *bmp) {
+    BFHEADER header;
+    FILE *pf;
+
+    pf = fopen(bmp, "rb");
+    if(pf == NULL) {
+        printf("Erro ao abrir arquivo\n");
+        return;
+    }
+
+    bfHeaderRead(&header, pf);
+    fclose(pf);
+
+    bfHeaderPrint(&header);
+    printf("Bmp válido?? %d", bfHeaderIsValid(&header));
+}
+
+void testIHeader(char *bmp) {
+    BIHEADER iHeader;
+    FILE *pf;
+
+    pf = fopen(bmp, "rb");
+    if(pf == NULL) {
+        printf("Erro ao abrir arquivo");
+        return;
+    }
+
+    biHeaderRead(&iHeader, pf);
+    fclose(pf);
+
+    biHeaderPrint(&iHeader);
+}
+
 int main() {
-    VECTOR* vec = vectorCreateAs(int, NULL);
-    int i;
+    char *bmp1 = "test/testImg.bmp";
+    char *bmp2 = "test/testImg2.bmp";
 
-    i = 2;
-    vectorPushBack(vec, &i);
-    i = 5;
-    vectorPushBack(vec, &i);
-    i = 1;
-    vectorPushBack(vec, &i);
-    i = 7;
-    vectorPushBack(vec, &i);
-    i = 9;
-    vectorPushBack(vec, &i);
 
-    vectorPrintAs(vec, int);
+    testIHeader(bmp2);
 
-    vectorDestroy(&vec);
     return 0;
 }

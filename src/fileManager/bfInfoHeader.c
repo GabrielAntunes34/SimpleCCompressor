@@ -1,34 +1,12 @@
 #include "bfInfoHeader.h"
-
-// Aloca memória para um novo info header
-BINFOHEADER *bInfoHeaderCreate() {
-    BINFOHEADER *header;
-
-    header = (BINFOHEADER *) malloc(sizeof(BINFOHEADER));
-    if(header != NULL) {
-        header->size = 0;
-        header->bmpWidth = 0;
-        header->bmpHeight = 0;
-        header->planes = 0;
-        header->bitCount = 0;
-        header->compression = 0;
-        header->imageSize = 0;
-        header->XPixelsPerMeter = 0;
-        header->YPixelsPerMeter = 0;
-        header->clrUsed = 0;
-        header->clrImportant = 0;
-    }
-
-    return header;
-}
     
 // Lê para um TAD info header os campos de um arquivo já aberto
-bool bInfoHeaderRead(BINFOHEADER *header, FILE *bfPtr) {
+bool biHeaderRead(BIHEADER *header, FILE *bfPtr) {
     if(header == NULL || bfPtr == NULL)
         return false;
     
     // Verificando se o bfPtr está no início do arquivo
-    if(ftell(bfPtr) != SEEK_SET)
+    if(ftell(bfPtr) != INFO_HEADER_OFFSET)
         fseek(bfPtr, INFO_HEADER_OFFSET, SEEK_SET);
 
     // Lendo campo a campo do arquivo
@@ -48,7 +26,7 @@ bool bInfoHeaderRead(BINFOHEADER *header, FILE *bfPtr) {
 }
 
 // Escreve os campos do info header em um arquivo já aberto
-bool bInfoHeaderWrite(BINFOHEADER *header, FILE *bfPtr) {
+bool biHeaderWrite(BIHEADER *header, FILE *bfPtr) {
     if(header == NULL || bfPtr == NULL)
         return false;
     
@@ -72,11 +50,20 @@ bool bInfoHeaderWrite(BINFOHEADER *header, FILE *bfPtr) {
     return true;
 }
 
-// Desaloca a memória utilizada no info header
-void bInfoHeaderDestroy(BINFOHEADER **header) {
-    if(*header == NULL)
+void biHeaderPrint(BIHEADER *header) {
+    if(header == NULL)
         return;
 
-    free(*header);
-    *header = NULL;
+    printf("===== INFO HEADER DO BMP =====\n\n");
+
+    printf("dimensões da imagem: (%d, %d)\n", header->bmpWidth, header->bmpWidth);
+    printf("Quantidade de color planes: %d\n", header->planes);
+    printf("canais de cores (em bits): %d\n", header->bitCount);
+    printf("Compressão adotada: %d\n", header->compression);
+    printf("Tamanho do bitMap (em bytes): %d\n", header->imageSize);
+    printf("resolucao (em px/m): %d x %d\n", header->XPixelsPerMeter, header->YPixelsPerMeter);
+    printf("Quantidade de cores utilizadas: %d\n", header->clrUsed);
+    printf("Cores importantes: %d\n\n", header->clrImportant);
+
+    return;
 }

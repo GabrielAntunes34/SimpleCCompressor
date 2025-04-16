@@ -7,7 +7,8 @@
     // Prints de tipos primitivos para ED'S genéricas
     void intPrint(const void *val);
     void charPrint(const void *val);
-    void printFloat(const void *val);
-    void printDouble(const void *val);
+    void floatPrint(const void *val);
+    void doublePrint(const void *val);
+    void boolPrint(const void *val);
 
 #endif

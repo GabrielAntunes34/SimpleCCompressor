@@ -17,3 +17,22 @@ pelos módulos
 - A maioria dos TAD'S estão encapsulados, com excessão daqueles que julgamos ser
 estáveis o suficiente para tornar seus campos públicos e ter menos boilerplate
 (como os header files)
+- Independentemente do encapsulamento, TAD's são passados para funções
+por referência
+
+
+
+
+opcoes:
+TAD PIXELRGB ; TAD PIXELYCBCR
+- mais separado
+- posso encapsular
+- definir uma interação entre eles
+
+definir no FileManager
+- Preciso ao menos jogar a struct para.h
+- sem getters e setters
+- Menos uso da heap
+
+Sabe de um negócio? Vou definir o fileManager primeiro.... Muita coisa para decidir cara,
+mó trampo

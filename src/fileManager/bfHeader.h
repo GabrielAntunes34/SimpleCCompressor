@@ -15,13 +15,10 @@
         unsigned int bmpOffset;     // Offset do bitmap
     } BFHEADER;
 
-
-    BFHEADER *bfHeaderCreate();
-
     bool bfHeaderIsValid(BFHEADER *header);
     bool bfHeaderRead(BFHEADER *header, FILE *bfPtr);
     bool bfHeaderWrite(BFHEADER *header, FILE *bfPtr);
 
-    void bfHeaderDestroy(BFHEADER **header);
+    void bfHeaderPrint(BFHEADER *header);
 
 #endif

@@ -7,21 +7,28 @@
 //////////////////////////////////////
 void intPrint(const void *val) {
     int *ptr = (int *)val;
-    printf("%d ", *ptr);
+    printf("%d", *ptr);
 }
 
 void charPrint(const void *val) {
     char *ptr = (char *)val;
-    printf("%c ", *ptr);
+    printf("%c", *ptr);
 }
 
-void printFloat(const void *val) {
+void floatPrint(const void *val) {
     float *ptr = (float *)val;
-    printf("%f ", *ptr);
+    printf("%f", *ptr);
 }
 
-void printDouble(const void *val) {
+void doublePrint(const void *val) {
     double *ptr = (double *)val;
-    printf("%lf ", *ptr);
+    printf("%lf", *ptr);
+}
+
+void boolPrint(const void *val) {
+    bool *ptr = (bool *)val;
+    if(*ptr)
+        printf("True");
+    printf("False");
 }
 

@@ -1,25 +1,10 @@
 #include "bfHeader.h"
 
-// Cria na heap um header para arquivo bmp com os campos vazios
-BFHEADER *bfHeaderCreate() {
-    BFHEADER *header;
-
-    // Alocando memória e setando todos os campos para um valor nulo (0)
-    header = (BFHEADER *) malloc(sizeof(BFHEADER));
-    if(header != NULL) {
-        header->magic = 0;
-        header->fileSize = 0;
-        header->reserved1 = 0;
-        header->reserved2 = 0;
-        header->bmpOffset = 0;
-    }
-
-    return header;
-}
-
 // Verifica se o magic number do cabeçalho corresponde ao de um bmp
 bool bfHeaderIsValid(BFHEADER *header) {
-    return true;
+    if(header == NULL)
+        return false;
+    return ((header->magic == BF_MAGIC) ? true : false);
 }
 
 // Lê os dados do header em um arquivo já aberto
@@ -60,11 +45,15 @@ bool bfHeaderWrite(BFHEADER *header, FILE *bfPtr) {
     return true;
 }
 
-// Desaloca a memória para o header
-void bfHeaderDestroy(BFHEADER **header) {
-    if(*header == NULL)
+void bfHeaderPrint(BFHEADER *header) {
+    if(header == NULL)
         return;
 
-    free(*header);
-    *header = NULL;
+    printf("===== FILE HEADER DO BMP =====\n\n");
+
+    printf("Número mágico: %x\n", header->magic);
+    printf("Tamanho do arquivo: %d\n", header->fileSize);
+    printf("Offset do bitmap: %d\n\n", header->bmpOffset);
+
+    return;
 }

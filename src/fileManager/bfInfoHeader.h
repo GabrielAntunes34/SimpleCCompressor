@@ -1,5 +1,5 @@
-#ifndef BINFOHEADER_H
-    #define BINFOHEADER_H
+#ifndef BIHEADER_H
+    #define BIHEADER_H
     #include <stdio.h>
     #include <stdlib.h>
     #include <stdbool.h>
@@ -17,7 +17,7 @@
 
     #define INFO_HEADER_OFFSET 14
 
-    typedef struct bInfoHeader {
+    typedef struct bifoHeader {
         unsigned int size;         // Tamanho do infoHeader
         int bmpWidth;              // Largura da imagem (em pixels)
         int bmpHeight;             // Altura da imagem (em pixels)
@@ -29,12 +29,10 @@
         int YPixelsPerMeter;       // Pixels por metro em Y
         unsigned int clrUsed;      // Quantidade de cores utilizada
         unsigned int clrImportant; // Quantidade de cores importantes
-    }BINFOHEADER;
-
-    BINFOHEADER *bInfoHeaderCreate();
+    }BIHEADER;
     
-    bool bInfoHeaderRead(BINFOHEADER *header, FILE *bfPtr);
-    bool bInfoHeaderWrite(BINFOHEADER *header, FILE *bfPtr);
+    bool biHeaderRead(BIHEADER *header, FILE *bfPtr);
+    bool biHeaderWrite(BIHEADER *header, FILE *bfPtr);
 
-    void bInfoHeaderDestroy(BINFOHEADER **header);
+    void biHeaderPrint(BIHEADER *header);
 #endif
