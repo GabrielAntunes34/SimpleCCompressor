@@ -102,20 +102,18 @@ void vector_print(VECTOR *vec, void (printElem)(const void*)) {
     if(vec == NULL)
         return;
 
+    printf("[ ");
     for(size_t i = 0; i < vec->size; i++) {
         void *elem = (char *) vec->data + (i * vec->elemSize);
 
         // Verificando se é um TAD ou uma primitiva para imprimir adequadamente
-        if(vec->elemDestroy == NULL) {
+        if(vec->elemDestroy == NULL)
             printElem(elem);
-            printf(" ");
-        }
-        else {
+        else
             printElem(*(void**)elem);
-            printf(" ");
-        }
+        printf(", ");
     }
-    printf("\n");
+    printf("]\n");
 }
 
 // Libera todo o espaço alocado para o vetor e os elementos internos caso

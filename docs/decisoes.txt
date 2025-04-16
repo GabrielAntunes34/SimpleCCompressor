@@ -33,6 +33,3 @@ definir no FileManager
 - Preciso ao menos jogar a struct para.h
 - sem getters e setters
 - Menos uso da heap
-
-Sabe de um negócio? Vou definir o fileManager primeiro.... Muita coisa para decidir cara,
-mó trampo

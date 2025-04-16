@@ -3,6 +3,7 @@
     #include <stdlib.h>
     #include <stdbool.h>
     #include "util.h"
+    #include "pixel.h"
 
     // Macros para manter o uso "typesafe"
     // E abstrair o uso dos ponteiros genéricos
