@@ -2,9 +2,19 @@
 
 // Recebe um ponteiro e casta para int nu e cru
 
-//////////////////////////////////////
+//=====================================
+// Funções para tratamento de erros
+//=====================================
+
+// Mostra qualquer mensagem de erro em uma interfáce pré-definida
+void displayError(char *errorStr) {
+    printf("!=== ERROR ===!\n");
+    printf("%s\n\n", errorStr);
+}
+  
+//=====================================
 // PRINTS INTERNOS PARA TIPOS BÁSICOS
-//////////////////////////////////////
+//=====================================
 void intPrint(const void *val) {
     int *ptr = (int *)val;
     printf("%d", *ptr);

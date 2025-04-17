@@ -35,6 +35,42 @@ PIXELRGB pixelConvertYcbcrToRgb(PIXELYCBCR *pixel) {
     return newPixel;
 }
 
+// Lê um pixel em um arquivo já aberto no formato RGB
+// Estamos considerando a formatação de arquivos BMP!
+PIXELRGB pixelRgbRead(FILE *pf) {
+    PIXELRGB pixel;
+
+    fread(&pixel.b, sizeof(unsigned char), 1, pf);
+    fread(&pixel.g, sizeof(unsigned char), 1, pf);
+    fread(&pixel.r, sizeof(unsigned char), 1, pf);
+
+    return pixel;
+}
+
+// Lê de um pixel em um arquivo já aberto no formatro YCBCR
+PIXELYCBCR pixelYcbcrRead(FILE *pf) {
+    PIXELRGB pixel;
+    PIXELYCBCR pixelY;
+
+    pixel = pixelRgbRead(pf);
+    pixelY = pixelConvertRgbToYcbcr(&pixel);
+    return pixelY;
+}
+
+// Escreve um pixel em um arquivo já aberto no formato RGB
+void pixelRgbWrite(PIXELRGB *pixel, FILE *pf) {
+    fwrite(&pixel->b, sizeof(unsigned char), 1, pf);
+    fwrite(&pixel->g, sizeof(unsigned char), 1, pf);
+    fwrite(&pixel->r, sizeof(unsigned char), 1, pf);
+}
+
+// Escreve um pixel em um arquivo já aberto no formato YCBCR
+void pixelYcbcrWrite(PIXELYCBCR *pixel, FILE *pf) {
+    fwrite(&pixel->y, sizeof(double), 1, pf);
+    fwrite(&pixel->cb, sizeof(double), 1, pf);
+    fwrite(&pixel->cr, sizeof(double), 1, pf);
+}
+
 // Imprime um pixel no formato rgb. Função compatível com a
 // interface genérica.
 void pixelRgbPrint(const void *val) {

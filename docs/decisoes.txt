@@ -1,10 +1,15 @@
+------------------------------
 --- ARQUITETURA DO SISTEMA ---
+------------------------------
 --> Camadas
 
 - FileManager --> Cuida do i/o dos arquivos e é o ponto de interação para
 comprimí-los e descomprimí-los
+              --> Deve ser quem faz as verificações de ponteiro aberto
+                  ao invés dos typeWrite() internos?
 
 - Compressor --> Implementa algorítimos de compressão JPEG e TADS específicos para eles
+             --> Deve implementar uma interface compressor.h?
 
 - Primitives --> Implementa TAD's para tipos importantes no contexto de imagens, algumas
 estruturas úteis so longo do código e um arquivo "util" com funções compartilhadas
@@ -13,23 +18,35 @@ pelos módulos
 - main: Ponto de acesso do usuário, com interace em terminal
 
 
+-------------------
+--- FILEMANAGER ---
+-------------------
+- fileManager depende de headers e um vetor na main
+--> Por enquanto ele só encapsula as interações, leitura e checagem de erros
+
+- loadBmpImage()
+--> Há duas opções de carregar o bmp (rgb ou ycbcr)
+    --> A ideia é usar ycbcr para já otimizar o JPEG
+    (tira o custo de converte o vector<RGB> para vector<YCBCR>)
+    --> No futuro, usar RGB pode permitir comprimirmos direto
+    só com cod. entrópica, por exemplo
+
+- isBmpValidForCompression()
+--> Criada dentro do fileManager.h pois diz mais respeito ao escopo
+    do projeto do que uma limitação imposta pelo cabeçalho
+
+--------------
 --- OUTROS ---
+--------------
 - A maioria dos TAD'S estão encapsulados, com excessão daqueles que julgamos ser
 estáveis o suficiente para tornar seus campos públicos e ter menos boilerplate
-(como os header files)
+(todos os header files e os dois formatos de pixel)
 - Independentemente do encapsulamento, TAD's são passados para funções
 por referência
 
+- TAD pixel define duas structs e operações para interagir com elas
+--> Os códigos são pequenos, tornando dois arquivos desnecessários
+--> Trabalharemos constantemente com dois formatos de PIXEL que, em tese, só mudam em tipo de dado
+--> Isso facilita a interação entre eles sem precisar criar outro arquivo como interface
 
 
-
-opcoes:
-TAD PIXELRGB ; TAD PIXELYCBCR
-- mais separado
-- posso encapsular
-- definir uma interação entre eles
-
-definir no FileManager
-- Preciso ao menos jogar a struct para.h
-- sem getters e setters
-- Menos uso da heap

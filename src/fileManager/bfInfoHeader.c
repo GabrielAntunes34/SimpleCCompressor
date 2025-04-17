@@ -35,7 +35,7 @@ bool biHeaderWrite(BIHEADER *header, FILE *bfPtr) {
         fseek(bfPtr, INFO_HEADER_OFFSET, SEEK_SET);
 
     // Lendo campo a campo do arquivo
-    fwrite(&header->size, sizeof(unsigned int), 1, bfPtr);\
+    fwrite(&header->size, sizeof(unsigned int), 1, bfPtr);
     fwrite(&header->bmpWidth, sizeof(int), 1, bfPtr);
     fwrite(&header->bmpHeight, sizeof(int), 1, bfPtr);
     fwrite(&header->planes, sizeof(unsigned short), 1, bfPtr);

@@ -25,6 +25,12 @@
     PIXELYCBCR pixelConvertRgbToYcbcr(PIXELRGB *pixel);
     PIXELRGB pixelConvertYcbcrToRgb(PIXELYCBCR *pixel);
 
+    PIXELRGB pixelRgbRead(FILE *pf);
+    PIXELYCBCR pixelYcbcrRead(FILE *pf);
+
+    void pixelRgbWrite(PIXELRGB *pixel, FILE *pf);
+    void pixelYcbcrWrite(PIXELYCBCR *pixel, FILE *pf);
+
     void pixelRgbPrint(const void *val);
     void pixelYcbcrPrint(const void *val);
 

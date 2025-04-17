@@ -4,6 +4,8 @@
     #include <stdlib.h>
     #include <stdbool.h>
 
+    void displayError(char *errorStr);
+
     // Prints de tipos primitivos para ED'S genéricas
     void intPrint(const void *val);
     void charPrint(const void *val);
