@@ -17,9 +17,12 @@
 
     PIXELYCBCR **bmpGetYcbcrData(BMP *image);
     PIXELRGB **bmpGetRgbData(BMP *image);
-
+    int bmpGetWidth(BMP *image);
+    int bmpGetHeigth(BMP *image);
     BIHEADER bmpGetInfoHeader(BMP *image);
     BFHEADER bmpGetFileHeader(BMP *image);
+
+    bool bmpSetPixel(BMP *image, int i, int j, pixelRgb newPx);
 
     void bmpPrint(BMP *image, bool printHeaders, bool printData);
     void bmpDestroy(BMP **image);

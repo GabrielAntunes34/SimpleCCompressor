@@ -3,6 +3,7 @@
     #include <stdio.h>
     #include <stdlib.h>
     #include <stdbool.h>
+
     #include "bfHeader.h"
     #include "bfInfoHeader.h"
     #include "bmp.h"
@@ -14,13 +15,11 @@
     // Funções de I/O para arquivos
     BMP *loadImage(char *bmpName);
     bool writeNewImage(char *bmpName, BMP *newImage);
-    //void printBmpData();
-    //void printHeaders(BFHEADER *fHeader, BIHEADER *iHeader);
+
     //bool writeJPEGImage()
 
     // Funções de compressão / descompressão
-
-    // Manipulações das imagens
-    //bool convertRgbToYcbcr();
+    //bool compress(BMP *bmp);
+    //bool decompress();
 
 #endif

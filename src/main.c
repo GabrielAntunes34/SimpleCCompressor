@@ -3,6 +3,7 @@
 
 // Test functions
 #include "test/bmpTests.h"
+#include "test/compressTest.h"
 
 #include "primitives/util.h"
 #include "primitives/pixel.h"
@@ -12,14 +13,15 @@
 #include "fileManager/fileManager.h"
 #include "fileManager/bmp.h"
 
+#define TESTFILE "test.bmp"
+
 int main() {
     char *bmp1 = "img/testImg.bmp";
     char *bmp2 = "img/testImg2.bmp";
     char *bmp3 = "img/colors.bmp";
+    char *testFile = "test.bmp";
 
 
-    //testPixel();
-    testFileManager(bmp3);
-
+    testYcbcrCompresion(bmp1, testFile);
     return 0;
 }

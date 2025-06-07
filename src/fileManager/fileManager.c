@@ -160,3 +160,13 @@ bool writeNewImage(char *bmpName, BMP *newImage) {
 //==========================
 // Interface do compressor
 //==========================
+
+// Comprime uma imagem bmp já carregada com o algorítimo JPEG
+bool compress(BMP *bmp) {
+    return false;
+}
+
+// Descomprime uma imagem JPEG para um bmp
+bool decompress() {
+    return false;
+}

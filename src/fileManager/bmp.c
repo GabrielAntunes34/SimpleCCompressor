@@ -6,7 +6,7 @@ struct bmp {
     PIXELRGB **data;
 };
 
-// Auxiliar to load all the data needed
+// Auxiliar para carregar todo o bitmap da imagem
 pixelRgb **loadBmpData(int width, int heigth, FILE *bmpPtr) {
     PIXELRGB **imgData;
 
@@ -106,14 +106,44 @@ PIXELRGB **bmpGetRgbData(BMP *image) {
     return image->data;
 }
 
+// Retorna a largura da imagem
+int bmpGetWidth(BMP *image) {
+    if(image == NULL)
+        return -1;
+
+    return image->iHeader.bmpWidth;
+}
+
+// Retorna a altura da imagem
+int bmpGetHeigth(BMP *image) {
+    if(image == NULL)
+        return -1;
+
+    return image->iHeader.bmpHeight;
+}
+
 // Retorna o infoHeader interno
 BIHEADER bmpGetInfoHeader(BMP *image) {
     return image->iHeader;   
 }
+
+// Retorna o file header interno
 BFHEADER bmpGetFileHeader(BMP *image) {
     return image->fHeader;
 }
 
+bool bmpSetPixel(BMP *image, int i, int j, pixelRgb newPx) {
+    if(image == NULL)
+        return false;
+
+    if(i > image->iHeader.bmpHeight || j > image->iHeader.bmpWidth)
+        return false;
+        
+    image->data[i][j] = newPx;
+    return true;
+}
+
+// Permite o usuário imprimir o bitmap e os cabeçalhos do arquivo
 void bmpPrint(BMP *image, bool printHeaders, bool printData) {
     if(image == NULL)
         return;
