@@ -14,7 +14,7 @@
     typedef struct pixelRgb pixelRgb;
 
     // Define um pixel para o formato YCbCr (utilizado na compressão
-    // e na aplicação da TCT)
+    // e na aplicação da DCT)
     typedef struct pixelYcbcr {
         double y;
         double cb;

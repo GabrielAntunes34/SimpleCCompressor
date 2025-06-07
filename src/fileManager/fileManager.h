@@ -5,14 +5,15 @@
     #include <stdbool.h>
     #include "bfHeader.h"
     #include "bfInfoHeader.h"
+    #include "bmp.h"
 
     #include "../primitives/vector.h"
     #include "../primitives/pixel.h"
     #include "../primitives/util.h"
     
     // Funções de I/O para arquivos
-    VECTOR *loadBmpImage(char *bmpName, BFHEADER *fHeader, BIHEADER *iHeader, bool asYcbcr);
-    //bool writeBmpImage(FILE *bmpPtr, BFHEADER *fHeader, BIHEADER *iHeader, VECTOR *imgData);
+    BMP *loadImage(char *bmpName);
+    bool writeNewImage(char *bmpName, BMP *newImage);
     //void printBmpData();
     //void printHeaders(BFHEADER *fHeader, BIHEADER *iHeader);
     //bool writeJPEGImage()

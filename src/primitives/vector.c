@@ -7,8 +7,8 @@
 struct vector {
     void *data;         // Ponteiro para o array de dados genéricos
     size_t elemSize;    // Tamanho em bytes do tipo de dado usado
-    size_t size;        // Quantidade de elementos ocupando vector
-    size_t capacity;    // Quantidade de espaço alocado (medido em quantidade de elementos)
+    long int size;      // Quantidade de elementos ocupando vector
+    long int capacity;  // Quantidade de espaço alocado (medido em quantidade de elementos)
 
     void (*elemDestroy)(void **);    // Função opcional para desalocar a memória do elemento interno
 };
@@ -44,7 +44,7 @@ VECTOR *vector_create(size_t elemSize, void (*elemDestroy)(void **)) {
 
 // Função que retorna um ponteiro genérico para o index expresso.
 // Precisa de um casting!
-void* vector_index(VECTOR *vec, size_t index) {
+void* vector_index(VECTOR *vec, long int index) {
     if(vec == NULL || index >= vec->size)
         return NULL;
 
@@ -54,12 +54,12 @@ void* vector_index(VECTOR *vec, size_t index) {
 }
 
 // Retorna a quantidade de posições preenchidas no vector
-size_t vectorGetSize(VECTOR *vec) {
+long int vectorGetSize(VECTOR *vec) {
     return ((vec == NULL) ? VECTOR_ERROR : vec->size);
 }
 
 // Retorna a quantidade de elementos 
-size_t vectorGetCapacity(VECTOR *vec) {
+long int vectorGetCapacity(VECTOR *vec) {
     return ((vec == NULL) ? VECTOR_ERROR : vec->capacity);
 }
 
@@ -81,7 +81,7 @@ bool vectorPushBack(VECTOR *vec, const void *elem) {
 }
 
 // Altera o valor de um index já previamente preenchido no vetor
-bool vectorSetIndex(VECTOR *vec, size_t index, const void *elem) {
+bool vectorSetIndex(VECTOR *vec, long int index, const void *elem) {
     if(vec == NULL || index >= vec->size)
         return false;
     
@@ -103,7 +103,7 @@ void vector_print(VECTOR *vec, void (printElem)(const void*)) {
         return;
 
     printf("[ ");
-    for(size_t i = 0; i < vec->size; i++) {
+    for(long int i = 0; i < vec->size; i++) {
         void *elem = (char *) vec->data + (i * vec->elemSize);
 
         // Verificando se é um TAD ou uma primitiva para imprimir adequadamente
@@ -124,7 +124,7 @@ void vectorDestroy(VECTOR **vec) {
 
     // Desalocando as memórias dos elementos internos, caso sejam TAD's
     if((*vec)->elemDestroy != NULL) {
-        for(size_t i = 0; i < (*vec)->size; i++) {
+        for(long int i = 0; i < (*vec)->size; i++) {
             void *elem = (char *) (*vec)->data + ((i * (*vec)->elemSize));
             (*vec)->elemDestroy(elem);
         }

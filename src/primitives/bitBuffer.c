@@ -77,7 +77,7 @@ bool bitBufferInsert(BITBUFFER *bitBuffer, unsigned int *code, int size, FILE *p
     return true;
 }
 
-// Função que eseta todos os bytes no bitBuffer para 
+// Função que reseta todos os bytes no bitBuffer para 0 
 bool bitBufferClean(BITBUFFER *bitBuffer) {
     if(bitBuffer == NULL)
         return false;

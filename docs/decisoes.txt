@@ -38,7 +38,7 @@ pelos módulos
 --------------
 --- OUTROS ---
 --------------
-- A maioria dos TAD'S estão encapsulados, com excessão daqueles que julgamos ser
+- A maioria dos TAD'S estão encapsulados, com exceção daqueles que julgamos ser
 estáveis o suficiente para tornar seus campos públicos e ter menos boilerplate
 (todos os header files e os dois formatos de pixel)
 - Independentemente do encapsulamento, TAD's são passados para funções
