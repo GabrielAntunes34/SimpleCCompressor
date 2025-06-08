@@ -22,78 +22,6 @@ bool isBmpValidForCompression(BIHEADER *h) {
     return true;
 }
 
-/*
-// Carrega os arquivos de imagens bmp em um vector de pixels,
-// além de setar os headers na memóris
-VECTOR *loadBmpImage(char *bmpName, BFHEADER *fHeader, BIHEADER *iHeader, bool asYcbcr) {
-    if(bmpName == NULL || fHeader == NULL || iHeader == NULL)
-        return NULL;
-    
-    FILE *bmpPtr;
-    VECTOR *imgData;
-    int pixelQntd;      // Quantidade de pixels na imagem
-    bool checkAux;      // Recebe os retornos de funções bool para verificações
-
-    // Abrindo o arquivo bmp
-    bmpPtr = fopen(bmpName, "rb");
-    if(bmpPtr == NULL) {
-        displayError("Nao foi possível abrir o arquivo.");
-        return NULL;
-    }
-
-    // Carregando os cabeçalhos
-    checkAux = loadBmpHeaders(bmpPtr, fHeader, iHeader);
-    if(!checkAux)
-        return NULL;
-
-    // Populando o vector de acordo com a forma que os bits serão carregados
-    fseek(bmpPtr, fHeader->bmpOffset, SEEK_SET);
-    pixelQntd = iHeader->bmpHeight * iHeader->bmpWidth;
-    imgData = loadBmpData(bmpPtr, pixelQntd, asYcbcr);
-
-    fclose(bmpPtr);
-    return imgData;
-}
-
-bool writeBmpImage(char *bmpName, BFHEADER *fHeader, BIHEADER *iHeader, VECTOR *imgData) {
-    if(bmpName == NULL || fHeader == NULL || iHeader == NULL || imgData == NULL)
-        return NULL;
-
-    FILE *bmpPtr;
-    bool checkAux;
-    pixelRgb px;        // Auxiliar para obter os pixeis do vector
-    long pixelQntd;
-
-    bmpPtr = fopen(bmpName, "wb");
-    if(bmpPtr == NULL) {
-        displayError("Não foi possível abrir o arquivo");
-        return false;
-    }
-
-    // Escrevendo os cabeçalhos
-    checkAux = bfHeaderWrite(fHeader, bmpPtr);
-    if(!checkAux) {
-        displayError("Erro ao escrever o file header bmp");
-        return false;
-    }
-    checkAux = biHeaderWrite(iHeader, bmpPtr);
-    if(!checkAux) {
-        displayError("Erro ao escrever o file header bmp");
-        return false;
-    }
-
-    // Escrevendo os pixeis contidos no vetor
-    for(int i = 0; i < vectorGetSize(imgData); i++) {
-        px = vectorIndexAs(imgData, pixelRgb, i);
-        pixelRgbWrite(&px, bmpPtr);
-    }
-
-    // Fechando o arquivo e retornando
-    fclose(bmpPtr);
-    return true;
-}
-*/
-
 BMP *loadBmpImage(char *bmpName) {
     BMP *image;
     FILE *bmpPtr;
@@ -165,14 +93,16 @@ bool writeBmpImage(char *bmpName, BMP *newImage) {
 // Comprime uma imagem bmp já carregada com o algorítimo JPEG
 bool compress(BMP *bmp) {
     PIXELYCBCR **ycbcrMat;
-    VECTOR *yBlocks;
-    VECTOR *crBlcocks;
-    VECTOR *cbBlocks;
+
+    // Alocando os vetores
+    VECTOR *yBlocks = vectorCreateAs(double, NULL);
+    VECTOR *cbBlocks = vectorCreateAs(double, NULL);
+    VECTOR *crBlocks = vectorCreateAs(double, NULL);
 
     // Preparando a imagem para a dct
     ycbcrMat = bmpGetYcbcrData(bmp);
     //downSample420(&ycbcrMat, bmpGetWidth(bmp), bmpGetHeigth(bmp));
-    prepareBlocks(&ycbcrMat, bmpGetWidth(bmp), bmpGetHeigth(bmp), yBlocks, cbBlocks, crBlcocks);
+    prepareBlocks(&ycbcrMat, bmpGetWidth(bmp), bmpGetHeigth(bmp), yBlocks, cbBlocks, crBlocks, true);
 
 
     // Liberando a matriz ycbcr
@@ -185,7 +115,7 @@ bool compress(BMP *bmp) {
 
     // Libreando os vectors
     vectorDestroy(&yBlocks);
-    vectorDestroy(&crBlcocks);
+    vectorDestroy(&crBlocks);
     vectorDestroy(&cbBlocks);
     return false;
 }

@@ -2,46 +2,39 @@
 
 // Decompoes os pixeis de uma matriz ycbcr para vectors de cada canal
 // A ordem dos dados em cada vector é a ordem dos blocos 8 por 8
-void prepareBlocks(PIXELYCBCR ***mat, int width, int heigth, VECTOR *yBlocks, VECTOR *cbBlocks, VECTOR *crBlocks) {
+void prepareBlocks(PIXELYCBCR ***mat, int width, int heigth, VECTOR *yBlocks, VECTOR *cbBlocks, VECTOR *crBlocks, bool levelShift) {
     if(mat == NULL)
         return;
-
-    // Alocando os vetores
-    yBlocks = vectorCreateAs(dctBlock, NULL);
-    cbBlocks = vectorCreateAs(dctBlock, NULL);
-    crBlocks = vectorCreateAs(dctBlock, NULL);
-
-    // Variáveis auxiliares para os blocos
-    dctBlock yBlock;
-    dctBlock cbBlock;
-    dctBlock crBlock;
-
+   
+    // Auxiliares para percorrer a matriz em blocos
     int colOffset = 0;
     int lineOffset = 0;
-
-    printf("Lines: %d, cols: %d\n\n", heigth, width);
+    double y, cb, cr;
 
     // Iterando pela matriz de pixeis
     while(lineOffset < heigth) {
         for(int i = 0; i < 8; i++) {
-            for(int j = 0; j < 8; j++) {
-                
-                // Popoulando os blocos y, cb e cr
-                yBlock.mat[i][j] = (*mat)[i + lineOffset][j + colOffset].y;
-                //cbBlock.mat[i][j] = (*mat)[i + lineOffset][j + colOffset].cb;
-                //crBlock.mat[i][j] = (*mat)[i + lineOffset][j + colOffset].cr;
+            for(int j = 0; j < 8; j++) {   
+                // Obtendo os valores
+                y = (*mat)[i + lineOffset][j + colOffset].y;
+                cb = (*mat)[i + lineOffset][j + colOffset].cb;
+                cr = (*mat)[i + lineOffset][j + colOffset].cr;
+
+                // Executando o level shift para facilitar o cálculo da DCT
+                if(levelShift) {
+                    y -= 128;
+                    cb -= 128;
+                    cr -= 128;
+                }
+
+                // Populando os blocos
+                vectorPushBack(yBlocks, &(*mat)[i + lineOffset][j + colOffset].y);
+                if(cb != -1.0)
+                    vectorPushBack(cbBlocks, &cb);
+                if(cb != -1.0)
+                    vectorPushBack(crBlocks, &cr);
             }
         }
-
-        // Inserindo o suposto bloco no vector
-        printf("Aquiiiii\n");
-        printf("colOffset: %d, lineOffset: %d\n", colOffset, lineOffset);
-        dctBlockPrint(yBlock);
-        printf("\n");
-
-        vectorPushBack(yBlocks, &yBlock);
-        //vectorPushBack(cbBlocks, &cbBlock);
-        //vectorPushBack(crBlocks, &crBlock);
 
         // Ajustando o offset para o próximo bloco
         colOffset += 8;

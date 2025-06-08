@@ -12,6 +12,6 @@
         double mat[8][8];
     }dctBlock;
     
-    void prepareBlocks(PIXELYCBCR ***mat, int width, int heigth, VECTOR *yBlocks, VECTOR *cbBlocks, VECTOR *crBlocks);
+    void prepareBlocks(PIXELYCBCR ***mat, int width, int heigth, VECTOR *yBlocks, VECTOR *cbBlocks, VECTOR *crBlocks, bool LevelShift);
     void dctBlockPrint(dctBlock);
 #endif

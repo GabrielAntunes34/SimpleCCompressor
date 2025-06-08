@@ -77,28 +77,31 @@ void testSampler(char *bmpEntry, char *bmpExit) {
 
 void testBlocks(char *bmpEntry) {
     PIXELYCBCR **ycbcrMat;
-    VECTOR *yBlocks;
-    VECTOR *crBlocks;
-    VECTOR *cbBlocks;
+
+    // Alocando os vetores
+    VECTOR *yBlocks = vectorCreateAs(double, NULL);
+    VECTOR *cbBlocks = vectorCreateAs(double, NULL);
+    VECTOR *crBlocks = vectorCreateAs(double, NULL);
 
     // Obtendo os pixeis em ycbcr
     BMP *bmp = loadBmpImage(bmpEntry);
     ycbcrMat = bmpGetYcbcrData(bmp);
 
+
     // Obtendo os blocos da imagem
     ycbcrMat = bmpGetYcbcrData(bmp);
-    prepareBlocks(&ycbcrMat, 16, 16, yBlocks, cbBlocks, crBlocks);
+    downSample420(&ycbcrMat, bmpGetWidth(bmp), bmpGetHeigth(bmp));
+    prepareBlocks(&ycbcrMat, bmpGetWidth(bmp), bmpGetHeigth(bmp), yBlocks, cbBlocks, crBlocks, false);
 
-    printf("Size: %ld\n", vectorGetSize(yBlocks));
+    //printf("Size: %ld\n", vectorGetSize(yBlocks));
+    printf("Size: %ld\n", vectorGetSize(cbBlocks));
+    printf("Size: %ld\n", vectorGetSize(crBlocks));
 
     // Imprimindo o resultado
     printf("Blocos y:\n");
-    for(int i = 0; i < vectorGetSize(yBlocks); i++) {
-        printf("Aquiiii\n");
-        //dctBlock *blk = (dctBlock*) vector_index(yBlocks, i);
-        printf("Aquiiiii2\n");
-        //dctBlockPrint(*blk);
-    }
+    vectorPrintAs(yBlocks, double);
+    vectorPrintAs(cbBlocks, double);
+    vectorPrintAs(crBlocks, double);
 
     // Liberando a matriz ycbcr
     for(int i = 0; i < bmpGetHeigth(bmp); i++) {
