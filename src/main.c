@@ -22,6 +22,6 @@ int main() {
     char *testFile = "test.bmp";
 
 
-    testYcbcrCompresion(bmp1, testFile);
+    testSampler(bmp1, testFile);
     return 0;
 }

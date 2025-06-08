@@ -11,9 +11,10 @@ PIXELYCBCR pixelConvertRgbToYcbcr(PIXELRGB *pixel) {
     PIXELYCBCR newPixel;
 
     // Aplicando a fórmula de conversão para todos os campos (menos cg)
-    newPixel.y = (0.299 * pixel->r) + (0.5876 * pixel->g) + (0.114 * pixel->b);
-    newPixel.cb = 0.564 * (pixel->b - newPixel.y);
-    newPixel.cr = 0.713 * (pixel->r - newPixel.y);
+    // Somamos 128 em cb e cr para garantir todas as variaveis no intervalo [0, 255]
+    newPixel.y = (double) (0.299 * pixel->r) + (0.587 * pixel->g) + (0.114 * pixel->b);
+    newPixel.cb = (double) 0.564 * (pixel->b - newPixel.y) + 128;
+    newPixel.cr = (double) 0.713 * (pixel->r - newPixel.y) + 128;
 
     return newPixel;
 }
@@ -24,6 +25,10 @@ PIXELRGB pixelConvertYcbcrToRgb(PIXELYCBCR *pixel) {
         PIXELRGB errorPixel = {-1, -1, -1};
         return errorPixel;
     }
+
+    // Retirando o padding de 128
+    pixel->cb -= 128;
+    pixel->cr -= 128;
 
     // Aplicando a fórmula de conversão para todos os campos, e convertendo
     // para unsigned char.

@@ -35,6 +35,15 @@ pelos módulos
 --> Criada dentro do fileManager.h pois diz mais respeito ao escopo
     do projeto do que uma limitação imposta pelo cabeçalho
 
+------------------
+--- COMPRESSAO ---
+------------------
+
+--> Escolhemos somar 128 na conversao para cb e cr e depois retirar
+tudo no downsampling
+--> Assim essa etapa segue o padrao mais favoravel para a conversao 
+e pode ser reaplicada em outros contextos
+
 --------------
 --- OUTROS ---
 --------------

@@ -11,10 +11,12 @@
     #include "../primitives/vector.h"
     #include "../primitives/pixel.h"
     #include "../primitives/util.h"
+
+    #include "../compressor/sampler.h"
     
     // Funções de I/O para arquivos
-    BMP *loadImage(char *bmpName);
-    bool writeNewImage(char *bmpName, BMP *newImage);
+    BMP *loadBmpImage(char *bmpName);
+    bool writeBmpImage(char *bmpName, BMP *newImage);
 
     //bool writeJPEGImage()
 

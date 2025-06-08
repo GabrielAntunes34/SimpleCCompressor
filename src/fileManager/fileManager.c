@@ -94,7 +94,7 @@ bool writeBmpImage(char *bmpName, BFHEADER *fHeader, BIHEADER *iHeader, VECTOR *
 }
 */
 
-BMP *loadImage(char *bmpName) {
+BMP *loadBmpImage(char *bmpName) {
     BMP *image;
     FILE *bmpPtr;
     BIHEADER iHeader;
@@ -128,7 +128,7 @@ BMP *loadImage(char *bmpName) {
 
 // Recebe um novo bmp descomprimido para ser escrito em um arquivo
 // *Obs: Ela não apaga o BMP!
-bool writeNewImage(char *bmpName, BMP *newImage) {
+bool writeBmpImage(char *bmpName, BMP *newImage) {
     FILE *bmpPtr;
     BFHEADER fHeader;
     bool checkWrite;
@@ -163,6 +163,12 @@ bool writeNewImage(char *bmpName, BMP *newImage) {
 
 // Comprime uma imagem bmp já carregada com o algorítimo JPEG
 bool compress(BMP *bmp) {
+    PIXELYCBCR **ycbcrMat;
+
+    // Preparando a imagem para a dct
+    ycbcrMat = bmpGetYcbcrData(bmp);
+    downSample420(&ycbcrMat, bmpGetWidth(bmp), bmpGetHeigth(bmp));
+
     return false;
 }
 

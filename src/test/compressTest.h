@@ -11,9 +11,12 @@
     #include "../fileManager/fileManager.h"
     #include "../fileManager/bmp.h"
 
+    #include "../compressor/sampler.h"
+
     // Testes para as funções de IO dos arquivos bmp e seus TAD's
     // Internos
 
     void testYcbcrCompresion(char *bmpEntry, char *bmpExit);
 
+    void testSampler(char *bmpEntry, char *bmpExit);
 #endif

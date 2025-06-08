@@ -4,6 +4,13 @@
     #include <stdlib.h>
     #include <stdbool.h>
 
+    struct doubleMatrix {
+        double **mat;
+        int width;
+        int heigth;
+    };
+    typedef struct doubleMatrix DBMATRIX;
+
     void displayError(char *errorStr);
 
     // Prints de tipos primitivos para ED'S genéricas

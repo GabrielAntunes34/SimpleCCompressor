@@ -78,12 +78,12 @@ void testFileManager(char *bmpFile) {
     BMP *bmp;
     PIXELYCBCR **dataCompressed;
 
-    bmp = loadImage(bmpFile);
+    bmp = loadBmpImage(bmpFile);
     if(!bmp)
         return;
     
     bmpPrint(bmp, true, false);
-    writeNewImage("test.bmp", bmp);
+    writeBmpImage("test.bmp", bmp);
     bmpDestroy(&bmp);
     return;
 } 
