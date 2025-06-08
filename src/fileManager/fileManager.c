@@ -161,14 +161,32 @@ bool writeBmpImage(char *bmpName, BMP *newImage) {
 // Interface do compressor
 //==========================
 
+
 // Comprime uma imagem bmp já carregada com o algorítimo JPEG
 bool compress(BMP *bmp) {
     PIXELYCBCR **ycbcrMat;
+    VECTOR *yBlocks;
+    VECTOR *crBlcocks;
+    VECTOR *cbBlocks;
 
     // Preparando a imagem para a dct
     ycbcrMat = bmpGetYcbcrData(bmp);
-    downSample420(&ycbcrMat, bmpGetWidth(bmp), bmpGetHeigth(bmp));
+    //downSample420(&ycbcrMat, bmpGetWidth(bmp), bmpGetHeigth(bmp));
+    prepareBlocks(&ycbcrMat, bmpGetWidth(bmp), bmpGetHeigth(bmp), yBlocks, cbBlocks, crBlcocks);
 
+
+    // Liberando a matriz ycbcr
+    for(int i = 0; i < bmpGetHeigth(bmp); i++) {
+        free(ycbcrMat[i]);
+        ycbcrMat[i] = NULL;
+    }
+    free(ycbcrMat);
+    ycbcrMat = NULL;
+
+    // Libreando os vectors
+    vectorDestroy(&yBlocks);
+    vectorDestroy(&crBlcocks);
+    vectorDestroy(&cbBlocks);
     return false;
 }
 

@@ -25,6 +25,14 @@ void testYcbcrCompresion(char *bmpEntry, char *bmpExit) {
     // Reescrevendo em um novo bmp
     writeBmpImage(bmpExit, bmp);
     bmpDestroy(&bmp);
+
+    // Liberando a matriz ycbcr
+    for(int i = 0; i < bmpGetHeigth(bmp); i++) {
+        free(ycbcrMat[i]);
+        ycbcrMat[i] = NULL;
+    }
+    free(ycbcrMat);
+    ycbcrMat = NULL;
 }
 
 void testSampler(char *bmpEntry, char *bmpExit) {
@@ -55,7 +63,53 @@ void testSampler(char *bmpEntry, char *bmpExit) {
 
     // Reescrevendo em um novo bmp
     writeBmpImage(bmpExit, bmp);
-    bmpDestroy(&bmp);
-    
 
+    // Apagando a memória dinamicamente alocada
+    bmpDestroy(&bmp);
+    // Liberando a matriz ycbcr
+    for(int i = 0; i < bmpGetHeigth(bmp); i++) {
+        free(ycbcrMat[i]);
+        ycbcrMat[i] = NULL;
+    }
+    free(ycbcrMat);
+    ycbcrMat = NULL;
+}
+
+void testBlocks(char *bmpEntry) {
+    PIXELYCBCR **ycbcrMat;
+    VECTOR *yBlocks;
+    VECTOR *crBlocks;
+    VECTOR *cbBlocks;
+
+    // Obtendo os pixeis em ycbcr
+    BMP *bmp = loadBmpImage(bmpEntry);
+    ycbcrMat = bmpGetYcbcrData(bmp);
+
+    // Obtendo os blocos da imagem
+    ycbcrMat = bmpGetYcbcrData(bmp);
+    prepareBlocks(&ycbcrMat, 16, 16, yBlocks, cbBlocks, crBlocks);
+
+    printf("Size: %ld\n", vectorGetSize(yBlocks));
+
+    // Imprimindo o resultado
+    printf("Blocos y:\n");
+    for(int i = 0; i < vectorGetSize(yBlocks); i++) {
+        printf("Aquiiii\n");
+        //dctBlock *blk = (dctBlock*) vector_index(yBlocks, i);
+        printf("Aquiiiii2\n");
+        //dctBlockPrint(*blk);
+    }
+
+    // Liberando a matriz ycbcr
+    for(int i = 0; i < bmpGetHeigth(bmp); i++) {
+        free(ycbcrMat[i]);
+        ycbcrMat[i] = NULL;
+    }
+    free(ycbcrMat);
+    ycbcrMat = NULL;
+
+    bmpDestroy(&bmp);
+    vectorDestroy(&yBlocks);
+    vectorDestroy(&cbBlocks);
+    vectorDestroy(&crBlocks);
 }

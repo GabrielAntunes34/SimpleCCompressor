@@ -12,6 +12,7 @@
     #include "../fileManager/bmp.h"
 
     #include "../compressor/sampler.h"
+    #include "../compressor/dct.h"
 
     // Testes para as funções de IO dos arquivos bmp e seus TAD's
     // Internos
@@ -19,4 +20,7 @@
     void testYcbcrCompresion(char *bmpEntry, char *bmpExit);
 
     void testSampler(char *bmpEntry, char *bmpExit);
+
+    void testBlocks(char *bmpEntry);
+    
 #endif

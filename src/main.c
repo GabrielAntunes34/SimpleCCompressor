@@ -22,6 +22,6 @@ int main() {
     char *testFile = "test.bmp";
 
 
-    testSampler(bmp1, testFile);
+    testBlocks(bmp3);
     return 0;
 }

@@ -13,6 +13,7 @@
     #include "../primitives/util.h"
 
     #include "../compressor/sampler.h"
+    #include "../compressor/dct.h"
     
     // Funções de I/O para arquivos
     BMP *loadBmpImage(char *bmpName);

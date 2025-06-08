@@ -46,6 +46,7 @@ void upSample420(PIXELYCBCR ***mat, int width, int heigth) {
         }
     }
 
+    /*
     // Upsampling horizontal (media dos vizinhos não descartados na linhas pares)
     for(int i = 0; i < heigth; i += 2) {
         for(int j = 1; j < width - 1; j += 2) {
@@ -67,6 +68,7 @@ void upSample420(PIXELYCBCR ***mat, int width, int heigth) {
             (*mat)[i][j].cr = ((*mat)[i - 1][j].cr + (*mat)[i+1][j].cr) / 2;
         }
     }
+    */
 
     for(int i = 0; i < heigth; i++) {
         for(int j = 0; j < width; j++) {
@@ -74,6 +76,7 @@ void upSample420(PIXELYCBCR ***mat, int width, int heigth) {
                 printf("Error at: %d, %d\n", i, j);
         }
     }
+
 }
 
 /*
