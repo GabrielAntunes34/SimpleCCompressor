@@ -23,4 +23,5 @@
 
     void testBlocks(char *bmpEntry);
     
+    void testDct(char *bmpEntry);
 #endif

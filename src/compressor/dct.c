@@ -1,5 +1,33 @@
 #include "dct.h"
 
+//==========================
+// INTERNAL TABLES
+//==========================
+
+// Matriz dos cossenos pré-calculada
+const double C[8][8] = {
+    {0.354, 0.354, 0.354, 0.354, 0.354, 0.354, 0.354, 0.354},
+    {0.490, 0.416, 0.278, 0.098, -0.098, -0.278, -0.416, -0.490},
+    {0.462, 0.191, -0.191, -0.462, -0.462, -0.191, 0.191, 0.462},
+    {0.416, -0.098, -0.490, -0.278, 0.278, 0.490, 0.098, -0.416},
+    {0.354, -0.354, -0.354, 0.354, 0.354, -0.354, -0.354, 0.354},
+    {0.278, -0.490, 0.098, 0.416, -0.416, -0.098, 0.490, -0.278},
+    {0.191, -0.462, 0.462, -0.191,-0.191, 0.462,   -0.462, 0.191},
+    {0.098, -0.278, 0.416, -0.490, 0.490, -0.416,   0.278, -0.098}
+};
+
+// Matriz dos cossenos transposta pré-calculada
+const double CT[8][8] = {
+    {0.354, 0.490, 0.462, 0.416, 0.354, 0.278, 0.191, 0.098 }, 
+    {0.354, 0.416, 0.191, -0.098, -0.354, -0.490, -0.462, -0.278}, 
+    {0.354, 0.278, -0.191, -0.490, -0.354, 0.098, 0.462, 0.416}, 
+    {0.354, 0.098, -0.462, -0.278, 0.354, 0.416, -0.191, -0.490}, 
+    {0.354, -0.098, -0.462, 0.278, 0.354, -0.416, -0.191, 0.490}, 
+    {0.354, -0.278, -0.191, 0.490, -0.354, -0.098, 0.462, -0.416}, 
+    {0.354, -0.416, 0.191, 0.098, -0.354, 0.490, -0.462, 0.278}, 
+    {0.354, -0.490, 0.462, -0.416, 0.354, -0.278, 0.191, -0.098} 
+};
+
 // Decompoes os pixeis de uma matriz ycbcr para vectors de cada canal
 // A ordem dos dados em cada vector é a ordem dos blocos 8 por 8
 void prepareBlocks(PIXELYCBCR ***mat, int width, int heigth, VECTOR *yBlocks, VECTOR *cbBlocks, VECTOR *crBlocks, bool levelShift) {
@@ -43,43 +71,50 @@ void prepareBlocks(PIXELYCBCR ***mat, int width, int heigth, VECTOR *yBlocks, VE
             lineOffset += 8;
         }
     }
-
-    /*
-    // Iterando pela matriz de pixeis
-    for(int k = 1; k <= blkQntdy; k ++) {
-        for(int i = 0; i < 8; i++) {
-            for(int j = 0; j < 8; j++) {
-                count++;
-                
-                // Popoulando os blocos y, cb e cr
-                yBlock.mat[i][j] = (*mat)[i*blkQntdy][j*blkQntdy].y;
-                cbBlock.mat[i][j] = (*mat)[i*blkQntdy][j*blkQntdy].cb;
-                crBlock.mat[i][j] = (*mat)[i*blkQntdy][j*blkQntdy].cr;
-
-                // Inserindo nos vectors, se estiverem prontos
-                printf("i: %d, j: %d\n", i, j);
-                if(count == 63) {
-                    printf("Aquiiiii\n");
-                    dctBlockPrint(yBlock);
-                    printf("\n");
-
-                    vectorPushBack(yBlocks, &yBlock);
-                    vectorPushBack(cbBlocks, &cbBlock);
-                    vectorPushBack(crBlocks, &crBlock);
-
-                    count = 0;
-                    
-                }
-            }
-        }
-    }*/
 }
 
-void dctBlockPrint(dctBlock block) {
+// Auxiliar que multiplica os blocos para realizar a DCT
+void multiplyBlocks(double res[8][8], const double block[8][8], const double B[8][8]) {
+
     for(int i = 0; i < 8; i++) {
         for(int j = 0; j < 8; j++) {
-            printf("%.2lf, ", block.mat[i][j]);
+            res[i][j] = 0.0;
+            for(int k = 0; k < 8; k++) {
+                res[i][j] += block[i][k] * B[k][j];
+            }
         }
-        printf("\n\n");
     }
 }
+
+// Aplica a DCT em um bloco de valores dentro de um canal de luminancia ou
+// Croominancia da imagem.
+void dct(VECTOR *channel, int blockBg) {
+    //DBMATRIX block;
+    //block = dbMatrixCreate(8, 8);
+    double block[8][8];
+    double aux[8][8];
+    double dct[8][8];
+
+    // Passando os valores do bloco para a matriz
+    for(int i = 0; i < 8; i++) {
+        for(int j = 0; j < 8; j++) {
+            block[i][j] = vectorIndexAs(channel, double, blockBg + (j + i * 8));
+        }
+    }
+
+    // Aplicando a fórmula DCT = C.B.CT
+    multiplyBlocks(aux, C, block);
+    multiplyBlocks(dct, aux, CT);
+
+    for(int i = 0; i < 8; i++) {
+        for(int j = 0; j < 8; j++) {
+            printf("%.2lf, ", dct[i][j]);
+        }
+        printf("\n");
+    }
+    printf("\n");
+
+}
+
+// Para reobter os blocos em ycbcr, fazemos a dct inversa aplicando: CT.B.C
+// inverseDct(??)

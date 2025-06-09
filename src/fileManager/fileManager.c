@@ -101,9 +101,8 @@ bool compress(BMP *bmp) {
 
     // Preparando a imagem para a dct
     ycbcrMat = bmpGetYcbcrData(bmp);
-    //downSample420(&ycbcrMat, bmpGetWidth(bmp), bmpGetHeigth(bmp));
+    downSample420(&ycbcrMat, bmpGetWidth(bmp), bmpGetHeigth(bmp));
     prepareBlocks(&ycbcrMat, bmpGetWidth(bmp), bmpGetHeigth(bmp), yBlocks, cbBlocks, crBlocks, true);
-
 
     // Liberando a matriz ycbcr
     for(int i = 0; i < bmpGetHeigth(bmp); i++) {

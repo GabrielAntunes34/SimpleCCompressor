@@ -33,9 +33,20 @@ PIXELRGB pixelConvertYcbcrToRgb(PIXELYCBCR *pixel) {
     // Aplicando a fórmula de conversão para todos os campos, e convertendo
     // para unsigned char.
     PIXELRGB newPixel;
-    newPixel.r = (unsigned char) (pixel->y + (1.402 * pixel->cr));
-    newPixel.g = (unsigned char) (pixel->y - (0.344 * pixel->cb) - (0.714 * pixel->cr));
-    newPixel.b = (unsigned char) (pixel->y + (1.772 * pixel->cb)); 
+
+    double r = (pixel->y + (1.402 * pixel->cr));
+    double g = (pixel->y - (0.344 * pixel->cb) - (0.714 * pixel->cr));
+    double b = (pixel->y + (1.772 * pixel->cb));
+    
+    // Adequando os erros de arredondamento para [0, 255]
+    r = min(255, max(0, r));
+    g = min(255, max(0, g));
+    b = min(255, max(0, b));
+
+    // Aplicando a conversão de tipo
+    newPixel.r = (unsigned char) r;
+    newPixel.g = (unsigned char) g;
+    newPixel.b = (unsigned char) b;
 
     return newPixel;
 }

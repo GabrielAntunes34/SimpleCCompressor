@@ -4,6 +4,8 @@
     #include <stdlib.h>
     #include <stdbool.h>
 
+    #include "util.h"
+
     // Define um tipo pixel para o formato rgb (usual das imagens
     // bmp)
     typedef struct pixelRgb {
