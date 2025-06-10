@@ -5,6 +5,7 @@
 #include "test/bmpTests.h"
 #include "test/compressTest.h"
 
+#include "primitives/matrix.h"
 #include "primitives/util.h"
 #include "primitives/pixel.h"
 
@@ -21,7 +22,6 @@ int main() {
     char *bmp3 = "img/colors.bmp";
     char *testFile = "test.bmp";
 
-
-    testBlocks(bmp3);
+    // testBlocks(bmp3);
     return 0;
 }

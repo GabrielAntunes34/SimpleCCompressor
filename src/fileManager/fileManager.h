@@ -9,6 +9,7 @@
     #include "bmp.h"
 
     #include "../primitives/vector.h"
+    #include "../primitives/matrix.h"
     #include "../primitives/pixel.h"
     #include "../primitives/util.h"
 
