@@ -22,6 +22,6 @@ int main() {
     char *bmp3 = "img/colors.bmp";
     char *testFile = "test.bmp";
 
-    // testBlocks(bmp3);
+    testSampler(bmp3, testFile);
     return 0;
 }

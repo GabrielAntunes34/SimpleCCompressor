@@ -96,15 +96,15 @@ bool compress2(BMP *bmp) {
     int width = bmpGetWidth(bmp);
     int heigth = bmpGetHeigth(bmp);
 
-    DBMATRIX channelY  = dbMatrixCreate(width, heigth);
-    DBMATRIX channelCb = dbMatrixCreate(width, heigth);
-    DBMATRIX channelCr = dbMatrixCreate(width, heigth);
+    DBMATRIX channelY  = dbMatrixCreate(heigth, width);
+    DBMATRIX channelCb = dbMatrixCreate(heigth, width);
+    DBMATRIX channelCr = dbMatrixCreate(heigth, width);
 
-    //bmpGetYcbCrData(bmp, &channelY, &channelCb, &channelCr);
+    bmpGetYcbcrChannels(bmp, &channelY, &channelCb, &channelCr);
 
     // Downsampling each channel
-    //DBMATRIX spChannelCb = downSample4202(&channelCb);
-    //DBMATRIX spChannelCr = downSample4202(&channelCr);
+    DBMATRIX spChannelCb = downSample420(&channelCb);
+    DBMATRIX spChannelCr = downSample420(&channelCr);
     dbMatrixDestroy(&channelCb);
     dbMatrixDestroy(&channelCr);
 

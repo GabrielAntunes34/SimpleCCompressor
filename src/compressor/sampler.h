@@ -3,13 +3,14 @@
     #include <stdio.h>
     #include <stdlib.h>
 
+    #include "../primitives/matrix.h"
     #include "../primitives/pixel.h"
     #include "../primitives/util.h"
 
     // Funções para aplicar subamostragem na etapa de tratamento
     // das imagens
+    DBMATRIX downSample420(DBMATRIX *channel);
+    DBMATRIX upSample420(DBMATRIX *sampledData);
 
-    void downSample420(PIXELYCBCR ***mat, int width, int heigth);
-    void upSample420(PIXELYCBCR ***mat, int width, int heigth);
 
 #endif
