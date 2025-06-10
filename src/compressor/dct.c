@@ -1,8 +1,8 @@
 #include "dct.h"
 
-//==========================
-// INTERNAL TABLES
-//==========================
+//============================
+// TABELAS INTERNAS DA DCT
+//============================
 
 // Matriz dos cossenos pré-calculada
 const double C[8][8] = {
@@ -28,50 +28,35 @@ const double CT[8][8] = {
     {0.354, -0.490, 0.462, -0.416, 0.354, -0.278, 0.191, -0.098} 
 };
 
-// Decompoes os pixeis de uma matriz ycbcr para vectors de cada canal
-// A ordem dos dados em cada vector é a ordem dos blocos 8 por 8
-void prepareBlocks(PIXELYCBCR ***mat, int width, int heigth, VECTOR *yBlocks, VECTOR *cbBlocks, VECTOR *crBlocks, bool levelShift) {
-    if(mat == NULL)
-        return;
-   
-    // Auxiliares para percorrer a matriz em blocos
-    int colOffset = 0;
-    int lineOffset = 0;
-    double y, cb, cr;
+// Matriz de quantização para o componente da luminância
+const int QY[8][8] = {
+    {16, 11, 10, 16, 24, 40, 51, 61},
+    {12, 12, 14, 19, 26, 58, 60, 55},
+    {14, 13, 16, 24, 40, 57, 69, 56},
+    {14, 17, 22, 29, 51, 87, 80, 62},
+    {18, 22, 37, 56, 68, 109, 103, 77},
+    {24, 35, 55, 64, 81, 104, 113, 92},
+    {79, 64, 78, 87, 103, 121, 120, 101},
+    {72, 92, 95, 98, 112, 100, 103, 99}
 
-    // Iterando pela matriz de pixeis
-    while(lineOffset < heigth) {
-        for(int i = 0; i < 8; i++) {
-            for(int j = 0; j < 8; j++) {   
-                // Obtendo os valores
-                y = (*mat)[i + lineOffset][j + colOffset].y;
-                cb = (*mat)[i + lineOffset][j + colOffset].cb;
-                cr = (*mat)[i + lineOffset][j + colOffset].cr;
+};
 
-                // Executando o level shift para facilitar o cálculo da DCT
-                if(levelShift) {
-                    y -= 128;
-                    cb -= 128;
-                    cr -= 128;
-                }
 
-                // Populando os blocos
-                vectorPushBack(yBlocks, &(*mat)[i + lineOffset][j + colOffset].y);
-                if(cb != -1.0)
-                    vectorPushBack(cbBlocks, &cb);
-                if(cb != -1.0)
-                    vectorPushBack(crBlocks, &cr);
-            }
-        }
+// Matriz de quantização para os componentes de croôminancia
+const int QC[8][8] = {
+    {17, 18, 24, 47, 99, 99, 99, 99},
+    {18, 21, 26, 66, 99, 99, 99, 99},
+    {24, 26, 56, 99, 99, 99, 99, 99},
+    {47, 66, 99, 99, 99, 99, 99, 99},
+    {99, 99, 99, 99, 99, 99, 99, 99},
+    {99, 99, 99, 99, 99, 99, 99, 99},
+    {99, 99, 99, 99, 99, 99, 99, 99},
+    {99, 99, 99, 99, 99, 99, 99, 99}
+};
 
-        // Ajustando o offset para o próximo bloco
-        colOffset += 8;
-        if(colOffset >= width) {
-            colOffset = 0;
-            lineOffset += 8;
-        }
-    }
-}
+//============================
+// FUNÇÕES PARA APLICAR A DCT
+//============================
 
 // Auxiliar que multiplica os blocos para realizar a DCT
 void multiplyBlocks(double res[8][8], const double block[8][8], const double B[8][8]) {
@@ -86,35 +71,39 @@ void multiplyBlocks(double res[8][8], const double block[8][8], const double B[8
     }
 }
 
-// Aplica a DCT em um bloco de valores dentro de um canal de luminancia ou
-// Croominancia da imagem.
-void dct(VECTOR *channel, int blockBg) {
-    //DBMATRIX block;
-    //block = dbMatrixCreate(8, 8);
-    double block[8][8];
+// Aplica a DCT em um bloco de tamanho blkSize x blocSize
+// Com os valores de um canal y, cb ou cr da imagem
+void dct(int blkSize, double blk[blkSize][blkSize], bool levelShift) {
     double aux[8][8];
-    double dct[8][8];
 
-    // Passando os valores do bloco para a matriz
-    for(int i = 0; i < 8; i++) {
-        for(int j = 0; j < 8; j++) {
-            block[i][j] = vectorIndexAs(channel, double, blockBg + (j + i * 8));
+    // Aplicando o levelShift para otimizar a quantização, caso necessário
+    if(levelShift) {
+        for(int i = 0; i < blkSize; i++) {
+            for(int j = 0; j < blkSize; j++) {
+                blk[i][j] -= 128;
+            }
         }
     }
 
     // Aplicando a fórmula DCT = C.B.CT
-    multiplyBlocks(aux, C, block);
-    multiplyBlocks(dct, aux, CT);
-
-    for(int i = 0; i < 8; i++) {
-        for(int j = 0; j < 8; j++) {
-            printf("%.2lf, ", dct[i][j]);
-        }
-        printf("\n");
-    }
-    printf("\n");
-
+    multiplyBlocks(aux, C, blk);
+    multiplyBlocks(blk, aux, CT);
 }
 
 // Para reobter os blocos em ycbcr, fazemos a dct inversa aplicando: CT.B.C
-// inverseDct(??)
+void inverseDct(int blkSize, double blk[blkSize][blkSize], bool levelShift) {
+    double aux[8][8];
+
+    // Aplicando a formula DCT = CT.B.C
+    multiplyBlocks(aux, CT, blk);
+    multiplyBlocks(blk, aux, C);
+
+    // Revertendo o level shift, se necessário
+    if(levelShift) {
+        for(int i = 0; i < blkSize; i++) {
+            for(int j = 0; j < blkSize; j++) {
+                blk[i][j] += 128;
+            }
+        }
+    }
+}

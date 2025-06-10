@@ -41,31 +41,42 @@ void testYcbcrCompresion(char *bmpEntry, char *bmpExit) {
 }
 
 void testSampler(char *bmpEntry, char *bmpExit) {
-    PIXELYCBCR **ycbcrMat;
-    PIXELRGB px;
     BMP *bmp;
 
-    // Obtendo os pixeis em ycbcr
+    // Lendo a imagem
     bmp = loadBmpImage(bmpEntry);
-    ycbcrMat = bmpGetYcbcrData(bmp);
+    int width = bmpGetWidth(bmp);
+    int heigth = bmpGetHeigth(bmp);
+
+    // Obtendo os dados ycbcr
+    DBMATRIX channelY  = dbMatrixCreate(heigth, width);
+    DBMATRIX channelCb = dbMatrixCreate(heigth, width);
+    DBMATRIX channelCr = dbMatrixCreate(heigth, width);
+    bmpGetYcbcrChannels(bmp, &channelY, &channelCb, &channelCr);
+
 
     // Aplicando e revertendo o downsampling
-    downSample420(&ycbcrMat, bmpGetWidth(bmp), bmpGetHeigth(bmp));
-    upSample420(&ycbcrMat, bmpGetWidth(bmp), bmpGetHeigth(bmp));
+    DBMATRIX spCb = downSample420(&channelCb);
+    DBMATRIX spCr = downSample420(&channelCr);
+    dbMatrixDestroy(&channelCb);
+    dbMatrixDestroy(&channelCr);
+    
+    DBMATRIX newCb = upSample420(&spCb);
+    DBMATRIX newCr = upSample420(&spCr);
+    dbMatrixDestroy(&spCb);
+    dbMatrixDestroy(&spCr);
 
     // Reconvertendo para rgb e salvando no bmp
-    for(int i = 0; i < bmpGetHeigth(bmp); i++) {
-        for(int j = 0; j < bmpGetWidth(bmp); j++) {
-            // Verificando se toda a conversão se manteve no range [0, 255]
-            if(ycbcrMat[i][j].cb < 0 || ycbcrMat[i][j].cr < 0 || ycbcrMat[i][j].y < 0) {
-                pixelYcbcrPrint(&ycbcrMat[i][j]);
-            }
-            if(ycbcrMat[i][j].cb > 255 || ycbcrMat[i][j].cr > 255 || ycbcrMat[i][j].y > 255) {
-                pixelYcbcrPrint(&ycbcrMat[i][j]);
-            }
+    PIXELYCBCR px;
+    PIXELRGB socorro;
+    for(int i = 0; i < heigth; i++) {
+        for(int j = 0; j < width; j++) {
+            px.y = channelY.matrix[i][j];
+            px.cb = newCb.matrix[i][j];
+            px.cr = newCr.matrix[i][j];
 
-            px = pixelConvertYcbcrToRgb(&ycbcrMat[i][j]);
-            bmpSetPixel(bmp, i, j, px);
+            socorro = pixelConvertYcbcrToRgb(&px);
+            bmpSetPixel(bmp, i, j, socorro);
         }
     }
 
@@ -74,90 +85,7 @@ void testSampler(char *bmpEntry, char *bmpExit) {
 
     // Apagando a memória dinamicamente alocada
     bmpDestroy(&bmp);
-    // Liberando a matriz ycbcr
-    for(int i = 0; i < bmpGetHeigth(bmp); i++) {
-        free(ycbcrMat[i]);
-        ycbcrMat[i] = NULL;
-    }
-    free(ycbcrMat);
-    ycbcrMat = NULL;
-}
-
-void testBlocks(char *bmpEntry) {
-    PIXELYCBCR **ycbcrMat;
-
-    // Alocando os vetores
-    VECTOR *yBlocks = vectorCreateAs(double, NULL);
-    VECTOR *cbBlocks = vectorCreateAs(double, NULL);
-    VECTOR *crBlocks = vectorCreateAs(double, NULL);
-
-    // Obtendo os pixeis em ycbcr
-    BMP *bmp = loadBmpImage(bmpEntry);
-    ycbcrMat = bmpGetYcbcrData(bmp);
-
-
-    // Obtendo os blocos da imagem
-    ycbcrMat = bmpGetYcbcrData(bmp);
-    downSample420(&ycbcrMat, bmpGetWidth(bmp), bmpGetHeigth(bmp));
-    prepareBlocks(&ycbcrMat, bmpGetWidth(bmp), bmpGetHeigth(bmp), yBlocks, cbBlocks, crBlocks, false);
-
-    printf("Size: %ld\n", vectorGetSize(yBlocks));
-    printf("Size: %ld\n", vectorGetSize(cbBlocks));
-    printf("Size: %ld\n", vectorGetSize(crBlocks));
-
-    // Imprimindo o resultado
-    printf("Blocos y:\n");
-    vectorPrintAs(yBlocks, double);
-    //vectorPrintAs(cbBlocks, double);
-    //vectorPrintAs(crBlocks, double);
-
-    // Liberando a matriz ycbcr
-    for(int i = 0; i < bmpGetHeigth(bmp); i++) {
-        free(ycbcrMat[i]);
-        ycbcrMat[i] = NULL;
-    }
-    free(ycbcrMat);
-    ycbcrMat = NULL;
-
-    bmpDestroy(&bmp);
-    vectorDestroy(&yBlocks);
-    vectorDestroy(&cbBlocks);
-    vectorDestroy(&crBlocks);
-}
-
-void testDct(char *bmpEntry) {
-    PIXELYCBCR **ycbcrMat;
-
-    // Alocando os vetores
-    VECTOR *yBlocks = vectorCreateAs(double, NULL);
-    VECTOR *cbBlocks = vectorCreateAs(double, NULL);
-    VECTOR *crBlocks = vectorCreateAs(double, NULL);
-
-    // Obtendo os pixeis em ycbcr
-    BMP *bmp = loadBmpImage(bmpEntry);
-    ycbcrMat = bmpGetYcbcrData(bmp);
-
-    // Obtendo os blocos da imagem
-    ycbcrMat = bmpGetYcbcrData(bmp);
-    prepareBlocks(&ycbcrMat, bmpGetWidth(bmp), bmpGetHeigth(bmp), yBlocks, cbBlocks, crBlocks, false);
-
-    // Calculando a dct para cada bloco y
-    for(int i = 0; i < vectorGetSize(yBlocks); i += 64) {
-        dct(yBlocks, i);
-        //dbMatrixPrint(&db);
-        //dbMatrixDestroy(&db);
-    }
-
-    // Liberando a matriz ycbcr
-    for(int i = 0; i < bmpGetHeigth(bmp); i++) {
-        free(ycbcrMat[i]);
-        ycbcrMat[i] = NULL;
-    }
-    free(ycbcrMat);
-    ycbcrMat = NULL;
-
-    bmpDestroy(&bmp);
-    vectorDestroy(&yBlocks);
-    vectorDestroy(&cbBlocks);
-    vectorDestroy(&crBlocks);
+    dbMatrixDestroy(&channelY);
+    dbMatrixDestroy(&newCb);
+    dbMatrixDestroy(&newCr);
 }

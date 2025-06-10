@@ -2,47 +2,46 @@
 
 // Aplica a subamostragem 4:2:0 na matrix yCbCr por meio
 // Da média dos valores em um bloco 2 x 2
-void downSample420(PIXELYCBCR ***mat, int width, int heigth) {
-    if(mat == NULL)
-        return;
-
+DBMATRIX downSample420(DBMATRIX *channel) {
+    DBMATRIX compressed;
     double average;
+    int heigth = channel->lines;
+    int width = channel->cols;
+
+    // Instanciando a nova matriz dos dados subamostrados
+    compressed = dbMatrixCreate((int) (heigth / 2), (int) (width / 2));
 
     // Andando pelos blocos 2x2 e substituindo pela média da
     // croominância
     for(int i = 0; i < heigth; i += 2) {
         for(int j = 0; j < width; j += 2) {
-            average = ((*mat)[i][j].cb + (*mat)[i][j+1].cb + (*mat)[i+1][j].cb + (*mat)[i+1][j+1].cb) / 4;
-            (*mat)[i][j].cb = average;
-            (*mat)[i][j+1].cb = -1.0;
-            (*mat)[i+1][j].cb = -1.0;
-            (*mat)[i+1][j+1].cb = -1.0;
+            average = (channel->matrix[i][j] + channel->matrix[i][j+1] + 
+                       channel->matrix[i+1][j] + channel->matrix[i+1][j+1]) / 4;
 
-            average = ((*mat)[i][j].cr + (*mat)[i][j+1].cr + (*mat)[i+1][j].cr + (*mat)[i+1][j+1].cr) / 4;
-            (*mat)[i][j].cr = average;
-            (*mat)[i][j+1].cr = -1.0;
-            (*mat)[i+1][j].cr = -1.0;
-            (*mat)[i+1][j+1].cr = -1.0;
+            // Verificar se isso aqui funciona...
+            compressed.matrix[i / 2][j / 2] = average;
         }
     }
+
+    return compressed;
 }
 
+// Recria a matriz original a partir de um canal subamostrado
+// Em 4:2:0
+DBMATRIX upSample420(DBMATRIX *sampledData) {
+    DBMATRIX decData;
 
-// Realiza o upsampling pela média dos vizinhos não descartados em cada ploco 2 por 2
-void upSample420(PIXELYCBCR ***mat, int width, int heigth) {
-    if(mat == NULL)
-        return;
-    
-    // Copiando os pixeis cb e cr para as regioes de informação perdida
-    for(int i = 0; i < heigth - 1; i += 2) {
-        for(int j = 0; j < width - 1; j += 2 ) {
-            (*mat)[i+1][j].cb = (*mat)[i][j].cb;
-            (*mat)[i][j+1].cb = (*mat)[i][j].cb;
-            (*mat)[i+1][j+1].cb = (*mat)[i][j].cb;
+    // Instanciando a matriz do tamanho da matrix original
+    int width = sampledData->cols * 2;
+    int heigth = sampledData->lines * 2;
+    decData = dbMatrixCreate(heigth, width);
 
-            (*mat)[i+1][j].cr = (*mat)[i][j].cr;
-            (*mat)[i][j+1].cr = (*mat)[i][j].cr;
-            (*mat)[i+1][j+1].cr = (*mat)[i][j].cr;
+    // Iterando pela nova matriz e copiando os valores perdidos
+    for(int i = 0; i < heigth; i++) {
+        for(int j = 0; j < width; j++) {
+            decData.matrix[i][j] = sampledData->matrix[i / 2][j / 2];
         }
     }
+
+    return decData;
 }

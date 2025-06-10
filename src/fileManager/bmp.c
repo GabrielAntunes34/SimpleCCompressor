@@ -74,6 +74,31 @@ bool bmpWrite(BMP *image, FILE *bmpPtr) {
     return true;
 }
 
+// Converte cada pixel de data para ycbcr e grava em matrizes passadas por
+// referencia
+void bmpGetYcbcrChannels(BMP *image, DBMATRIX *y, DBMATRIX *cb, DBMATRIX *cr) {
+    if(image == NULL)
+        return;
+
+    // Variáveis auxiliares para percorrer a matriz de pixeis
+    int width = image->iHeader.bmpWidth;
+    int heigth = image->iHeader.bmpHeight;
+    PIXELYCBCR px;
+
+    // Iterando pela matriz de pixeis para realizar a conversão
+    for(int i = 0; i < heigth; i++) {
+        for(int j = 0; j < width; j++) {
+            px = pixelConvertRgbToYcbcr(&image->data[i][j]);
+            y->matrix[i][j] = px.y;
+            cb->matrix[i][j] = px.cb;
+            cr->matrix[i][j] = px.cr;
+        }
+    }
+
+    return;
+}
+
+
 // Converte o campo data de pixeis rgb para um campo de pixeis ycbcr e retorna
 // a nova matriz agora desacoplada
 PIXELYCBCR **bmpGetYcbcrData(BMP *image) {

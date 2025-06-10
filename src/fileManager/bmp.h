@@ -6,6 +6,7 @@
     #include "bfHeader.h"
     #include "bfInfoHeader.h"
 
+    #include "../primitives/matrix.h"
     #include "../primitives/vector.h"
     #include "../primitives/pixel.h"
     #include "../primitives/util.h"
@@ -15,6 +16,7 @@
     BMP *bmpRead(FILE *bmpPtr);
     bool bmpWrite(BMP *image, FILE *bmpPtr);
 
+    void bmpGetYcbcrChannels(BMP *image, DBMATRIX *y, DBMATRIX *cb, DBMATRIX *cr);
     PIXELYCBCR **bmpGetYcbcrData(BMP *image);
     PIXELRGB **bmpGetRgbData(BMP *image);
     int bmpGetWidth(BMP *image);

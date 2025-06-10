@@ -91,6 +91,40 @@ bool writeBmpImage(char *bmpName, BMP *newImage) {
 
 
 // Comprime uma imagem bmp já carregada com o algorítimo JPEG
+
+bool compress2(BMP *bmp) {
+    int width = bmpGetWidth(bmp);
+    int heigth = bmpGetHeigth(bmp);
+
+    DBMATRIX channelY  = dbMatrixCreate(heigth, width);
+    DBMATRIX channelCb = dbMatrixCreate(heigth, width);
+    DBMATRIX channelCr = dbMatrixCreate(heigth, width);
+
+    bmpGetYcbcrChannels(bmp, &channelY, &channelCb, &channelCr);
+
+    // Downsampling each channel
+    DBMATRIX spChannelCb = downSample420(&channelCb);
+    DBMATRIX spChannelCr = downSample420(&channelCr);
+    dbMatrixDestroy(&channelCb);
+    dbMatrixDestroy(&channelCr);
+
+    // Obtendo a quantidade de blocos de dados
+    int yBlocks = dbMatrixBlockQntd(&channelY, BLK_SIZE);
+    int cbBlocks = dbMatrixBlockQntd(&spChannelCb, BLK_SIZE);
+    int crBlocks = dbMatrixBlockQntd(&spChannelCr, BLK_SIZE);
+
+    // Loop de compressão dos blocos y
+    for(int i = 0; i < yBlocks; i++) {
+        double block[8][8];
+        
+        dbMatrixGetBlock(&channelY, BLK_SIZE, i, block);
+        dct(BLK_SIZE, block, true);
+        //printBlock();
+    }
+    return false;
+}
+
+/*
 bool compress(BMP *bmp) {
     PIXELYCBCR **ycbcrMat;
 
@@ -118,6 +152,7 @@ bool compress(BMP *bmp) {
     vectorDestroy(&cbBlocks);
     return false;
 }
+*/
 
 // Descomprime uma imagem JPEG para um bmp
 bool decompress() {
