@@ -110,15 +110,15 @@ bool compress2(BMP *bmp) {
 
     // Obtendo a quantidade de blocos de dados
     int yBlocks = dbMatrixBlockQntd(&channelY, BLK_SIZE);
-    //int cbBlocks = dbMatrixBlockQntd(&spChannelCb, BLK_SIZE);
-    //int crBlocks = dbMatrixBlockQntd(&spChannelCr, BLK_SIZE);
+    int cbBlocks = dbMatrixBlockQntd(&spChannelCb, BLK_SIZE);
+    int crBlocks = dbMatrixBlockQntd(&spChannelCr, BLK_SIZE);
 
     // Loop de compressão dos blocos y
     for(int i = 0; i < yBlocks; i++) {
         double block[8][8];
         
         dbMatrixGetBlock(&channelY, BLK_SIZE, i, block);
-        //dct2(block);
+        dct(BLK_SIZE, block, true);
         //printBlock();
     }
     return false;

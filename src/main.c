@@ -14,7 +14,6 @@
 #include "fileManager/fileManager.h"
 #include "fileManager/bmp.h"
 
-#define TESTFILE "test.bmp"
 
 int main() {
     char *bmp1 = "img/testImg.bmp";
@@ -22,6 +21,28 @@ int main() {
     char *bmp3 = "img/colors.bmp";
     char *testFile = "test.bmp";
 
-    testSampler(bmp3, testFile);
+    //testSampler(bmp3, testFile);
+
+    double blk[8][8] = {
+        {255.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,},
+        {0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,},
+        {0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,},
+        {0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,},
+        {0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,},
+        {0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,},
+        {0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,},
+        {0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,},
+    };
+
+    dct(8, blk, true);
+    inverseDct(8, blk, true);
+
+    for(int i = 0; i < 8; i++) {
+        for(int j = 0; j < 8; j++) {
+            printf("%.2lf, ", blk[i][j]);
+        }
+        printf("\n");
+    }
+
     return 0;
 }

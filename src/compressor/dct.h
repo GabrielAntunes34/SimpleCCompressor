@@ -9,8 +9,7 @@
 
     #define BLK_SIZE 8
 
-    void prepareBlocks(PIXELYCBCR ***mat, int width, int heigth, VECTOR *yBlocks, VECTOR *cbBlocks, VECTOR *crBlocks, bool LevelShift);
-
-    void dct(VECTOR *channel, int blockBg);
+    void dct(int blkSize, double blk[blkSize][blkSize], bool levelShift);
+    void inverseDct(int blkSize, double blk[blkSize][blkSize], bool levelShift);
 
 #endif
