@@ -20,8 +20,7 @@
     void testYcbcrCompresion(char *bmpEntry, char *bmpExit);
 
     void testSampler(char *bmpEntry, char *bmpExit);
-
-    void testBlocks(char *bmpEntry);
     
-    void testDct(char *bmpEntry);
+    void testDct();
+    void testDctImage(char *bmpEntry, char *bmpExit);
 #endif

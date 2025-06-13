@@ -33,62 +33,98 @@ void dbMatrixDestroy(DBMATRIX *mat) {
 
 // Retorna a quantidade de blocos com o tamanho blkSize 
 // existentes na matriz
-int dbMatrixBlockQntd(DBMATRIX *mat, int blkSize) {
+int dbMatrixGetBlockQntd(DBMATRIX *mat, int blkSize) {
     if(mat == NULL || blkSize > mat->cols || blkSize > mat->lines)
         return -1;
     return (mat->cols * mat->lines) / (blkSize * blkSize);
 }
+
+// Auxiliar para calcular os índices de um bloco na matriz dado
+// o seu offset
+void calcBLockPosition(DBMATRIX *mat, int blkSize, int blkOffset, int *i, int *j) {
+    int blkPerLine;
+
+    // Obtendo a quantidade de blocos por linha
+    blkPerLine = (mat->cols / blkSize);
+
+    // Calculando os índices i e j do bloco
+    if(blkOffset >= blkPerLine)
+        *i = (blkOffset / (blkPerLine)) * blkSize;
+    *j = (blkOffset % blkPerLine) * blkSize;
+}
+
+// Retorna em uma matriz na stack da função que a chamou, um bloco da
+// DBMATRIX
 void dbMatrixGetBlock(DBMATRIX *mat, int blkSize, int blkOffset, double blk[blkSize][blkSize]) {
     if(mat == NULL || blkSize > mat->cols || blkSize > mat->lines)
         return;
 
     // Auxiliares para os índices nos blocos
     int i = 0;
-    int j;
+    int j = 0;
     int bi = 0;     // linha do novo bloco
     int bj = 0;     // coluna do novo bloco
-    int blkPerLine; // Quantidade de blocos por linha
 
-    // Calculando a quantidade de blocos por linha
-    blkPerLine = (mat->cols / blkSize);
-
-    printf("%d blocks per line\n", blkPerLine);
-
-    // Calculando os índices
-    if(blkOffset > blkPerLine) {
-        i = (blkOffset / (blkPerLine + 1)) * blkSize;
-    }
-    j = (blkOffset % blkPerLine) * blkSize;
-
-    printf("i: %d\n", i);
-    printf("j: %d\n", j);
-    printf("i: %d\n", i + blkSize);
-    printf("j: %d\n", j + blkSize);
+    // Calculando os índices do bloco
+    calcBLockPosition(mat, blkSize, blkOffset, &i, &j);
+    printf("(%d %d)\n", i, j);
+    printf("Tamanho de mat: (cols: %d lines: %d)\n", mat->cols, mat->lines);
 
     // Populando a matriz na stack com o novo bloco
     for(int k = 0; k < (blkSize * blkSize); k++) {
-        if((k != 0) && (k % blkSize == 8)) {
+        if((k != 0) && (k % blkSize == 0)) {
+            // Atualizando a linha
             i++;
             bi++;
+
+            // Resetando o íncide para a coluna
+            j -= blkSize;
+            bj -= blkSize;
+            //printf("\n (bi:%d, bj%d)\n", bi, bj);
+
         } 
 
+        printf("oi %d de %d: i = %d e j = %d\n", k, (blkSize * blkSize), i, j);
+        //printf("blk: %.2lf\n", blk[bi][bj]);
+        //printf("mat: %.2lf\n", mat->matrix[i][j]);
         blk[bi][bj] = mat->matrix[i][j];
+        //printf("Aaaah\n");
         j++;
         bj++;
     }
 
-    /*
-    for(; i < (i + blkSize); i++) {
-        for(; j < (j + blkSize); j++) {
-            blk[bi][bj] = mat->matrix[i][j];
-            bj++;
-            printf("%lf, ", mat->matrix[i][j]);
-        }
-        printf("\n");
-        bi++;
-    }
-    */
     return;
+}
+
+void dbMatrixSetBlock(DBMATRIX *mat, int blkSize, int blkOffset, double blk[blkSize][blkSize]) {
+    if(mat == NULL || blkSize > mat->cols || blkSize > mat->lines)
+        return;
+
+    // Auxiliares para os índices nos blocos
+    int i = 0;
+    int j = 0;
+    int bi = 0;     // linha do novo bloco
+    int bj = 0;     // coluna do novo bloco
+
+    // Calculando os índices do bloco
+    calcBLockPosition(mat, blkSize, blkOffset, &i, &j);
+
+    // Populando o bloco da DBMATRIX com o novo dado na stack
+    for(int k = 0; k < (blkSize * blkSize); k++) {
+        if((k != 0) && (k % blkSize == 0)) {
+            // Atualizando a linha
+            i++;
+            bi++;
+
+            // Resetando o índice para a coluna
+            j -= blkSize;
+            bj -= blkSize;
+        } 
+
+        mat->matrix[i][j] = blk[bi][bj];
+        j++;
+        bj++;
+    }
 }
 
 // Imprime uma matriz dinâmica de doubles

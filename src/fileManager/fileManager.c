@@ -92,7 +92,7 @@ bool writeBmpImage(char *bmpName, BMP *newImage) {
 
 // Comprime uma imagem bmp já carregada com o algorítimo JPEG
 
-bool compress2(BMP *bmp) {
+bool compress(BMP *bmp) {
     int width = bmpGetWidth(bmp);
     int heigth = bmpGetHeigth(bmp);
 
@@ -109,9 +109,9 @@ bool compress2(BMP *bmp) {
     dbMatrixDestroy(&channelCr);
 
     // Obtendo a quantidade de blocos de dados
-    int yBlocks = dbMatrixBlockQntd(&channelY, BLK_SIZE);
-    int cbBlocks = dbMatrixBlockQntd(&spChannelCb, BLK_SIZE);
-    int crBlocks = dbMatrixBlockQntd(&spChannelCr, BLK_SIZE);
+    int yBlocks = dbMatrixGetBlockQntd(&channelY, BLK_SIZE);
+    int cbBlocks = dbMatrixGetBlockQntd(&spChannelCb, BLK_SIZE);
+    int crBlocks = dbMatrixGetBlockQntd(&spChannelCr, BLK_SIZE);
 
     // Loop de compressão dos blocos y
     for(int i = 0; i < yBlocks; i++) {
@@ -119,40 +119,9 @@ bool compress2(BMP *bmp) {
         
         dbMatrixGetBlock(&channelY, BLK_SIZE, i, block);
         dct(BLK_SIZE, block, true);
-        //printBlock();
     }
     return false;
 }
-
-/*
-bool compress(BMP *bmp) {
-    PIXELYCBCR **ycbcrMat;
-
-    // Alocando os vetores
-    VECTOR *yBlocks = vectorCreateAs(double, NULL);
-    VECTOR *cbBlocks = vectorCreateAs(double, NULL);
-    VECTOR *crBlocks = vectorCreateAs(double, NULL);
-
-    // Preparando a imagem para a dct
-    ycbcrMat = bmpGetYcbcrData(bmp);
-    downSample420(&ycbcrMat, bmpGetWidth(bmp), bmpGetHeigth(bmp));
-    prepareBlocks(&ycbcrMat, bmpGetWidth(bmp), bmpGetHeigth(bmp), yBlocks, cbBlocks, crBlocks, true);
-
-    // Liberando a matriz ycbcr
-    for(int i = 0; i < bmpGetHeigth(bmp); i++) {
-        free(ycbcrMat[i]);
-        ycbcrMat[i] = NULL;
-    }
-    free(ycbcrMat);
-    ycbcrMat = NULL;
-
-    // Libreando os vectors
-    vectorDestroy(&yBlocks);
-    vectorDestroy(&crBlocks);
-    vectorDestroy(&cbBlocks);
-    return false;
-}
-*/
 
 // Descomprime uma imagem JPEG para um bmp
 bool decompress() {

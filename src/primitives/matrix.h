@@ -18,9 +18,9 @@
     void dbMatrixDestroy(DBMATRIX *mat);
 
     // Funções para a obtenção de blocos de matrizes
-    int dbMatrixBlockQntd(DBMATRIX *mat, int blkSize);
+    int dbMatrixGetBlockQntd(DBMATRIX *mat, int blkSize);
     void dbMatrixGetBlock(DBMATRIX *mat, int blkSize, int blkOffset, double blk[blkSize][blkSize]);
-    // dbMatrixSetBlock();
+    void dbMatrixSetBlock(DBMATRIX *mat, int blkSize, int blkOffset, double blk[blkSize][blkSize]);
 
     // Funções de IO para matrizes
     void dbMatrixPrint(DBMATRIX *mat);

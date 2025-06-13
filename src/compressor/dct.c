@@ -1,58 +1,64 @@
 #include "dct.h"
 
-//============================
-// TABELAS INTERNAS DA DCT
-//============================
+    //============================
+    // TABELAS DA DCT
+    //============================
 
-// Matriz dos cossenos pré-calculada
-const double C[8][8] = {
-    {0.354, 0.354, 0.354, 0.354, 0.354, 0.354, 0.354, 0.354},
-    {0.490, 0.416, 0.278, 0.098, -0.098, -0.278, -0.416, -0.490},
-    {0.462, 0.191, -0.191, -0.462, -0.462, -0.191, 0.191, 0.462},
-    {0.416, -0.098, -0.490, -0.278, 0.278, 0.490, 0.098, -0.416},
-    {0.354, -0.354, -0.354, 0.354, 0.354, -0.354, -0.354, 0.354},
-    {0.278, -0.490, 0.098, 0.416, -0.416, -0.098, 0.490, -0.278},
-    {0.191, -0.462, 0.462, -0.191,-0.191, 0.462,   -0.462, 0.191},
-    {0.098, -0.278, 0.416, -0.490, 0.490, -0.416,   0.278, -0.098}
-};
+    // Matriz dos cossenos pré-calculada
+    const double C[8][8] = {
+        {0.354, 0.354, 0.354, 0.354, 0.354, 0.354, 0.354, 0.354},
+        {0.490, 0.416, 0.278, 0.098, -0.098, -0.278, -0.416, -0.490},
+        {0.462, 0.191, -0.191, -0.462, -0.462, -0.191, 0.191, 0.462},
+        {0.416, -0.098, -0.490, -0.278, 0.278, 0.490, 0.098, -0.416},
+        {0.354, -0.354, -0.354, 0.354, 0.354, -0.354, -0.354, 0.354},
+        {0.278, -0.490, 0.098, 0.416, -0.416, -0.098, 0.490, -0.278},
+        {0.191, -0.462, 0.462, -0.191,-0.191, 0.462,   -0.462, 0.191},
+        {0.098, -0.278, 0.416, -0.490, 0.490, -0.416,   0.278, -0.098}
+    };
 
-// Matriz dos cossenos transposta pré-calculada
-const double CT[8][8] = {
-    {0.354, 0.490, 0.462, 0.416, 0.354, 0.278, 0.191, 0.098 }, 
-    {0.354, 0.416, 0.191, -0.098, -0.354, -0.490, -0.462, -0.278}, 
-    {0.354, 0.278, -0.191, -0.490, -0.354, 0.098, 0.462, 0.416}, 
-    {0.354, 0.098, -0.462, -0.278, 0.354, 0.416, -0.191, -0.490}, 
-    {0.354, -0.098, -0.462, 0.278, 0.354, -0.416, -0.191, 0.490}, 
-    {0.354, -0.278, -0.191, 0.490, -0.354, -0.098, 0.462, -0.416}, 
-    {0.354, -0.416, 0.191, 0.098, -0.354, 0.490, -0.462, 0.278}, 
-    {0.354, -0.490, 0.462, -0.416, 0.354, -0.278, 0.191, -0.098} 
-};
-
-// Matriz de quantização para o componente da luminância
-const int QY[8][8] = {
-    {16, 11, 10, 16, 24, 40, 51, 61},
-    {12, 12, 14, 19, 26, 58, 60, 55},
-    {14, 13, 16, 24, 40, 57, 69, 56},
-    {14, 17, 22, 29, 51, 87, 80, 62},
-    {18, 22, 37, 56, 68, 109, 103, 77},
-    {24, 35, 55, 64, 81, 104, 113, 92},
-    {79, 64, 78, 87, 103, 121, 120, 101},
-    {72, 92, 95, 98, 112, 100, 103, 99}
-
-};
+    // Matriz dos cossenos transposta pré-calculada
+    const double CT[8][8] = {
+        {0.354, 0.490, 0.462, 0.416, 0.354, 0.278, 0.191, 0.098 }, 
+        {0.354, 0.416, 0.191, -0.098, -0.354, -0.490, -0.462, -0.278}, 
+        {0.354, 0.278, -0.191, -0.490, -0.354, 0.098, 0.462, 0.416}, 
+        {0.354, 0.098, -0.462, -0.278, 0.354, 0.416, -0.191, -0.490}, 
+        {0.354, -0.098, -0.462, 0.278, 0.354, -0.416, -0.191, 0.490}, 
+        {0.354, -0.278, -0.191, 0.490, -0.354, -0.098, 0.462, -0.416}, 
+        {0.354, -0.416, 0.191, 0.098, -0.354, 0.490, -0.462, 0.278}, 
+        {0.354, -0.490, 0.462, -0.416, 0.354, -0.278, 0.191, -0.098} 
+    };
 
 
-// Matriz de quantização para os componentes de croôminancia
-const int QC[8][8] = {
-    {17, 18, 24, 47, 99, 99, 99, 99},
-    {18, 21, 26, 66, 99, 99, 99, 99},
-    {24, 26, 56, 99, 99, 99, 99, 99},
-    {47, 66, 99, 99, 99, 99, 99, 99},
-    {99, 99, 99, 99, 99, 99, 99, 99},
-    {99, 99, 99, 99, 99, 99, 99, 99},
-    {99, 99, 99, 99, 99, 99, 99, 99},
-    {99, 99, 99, 99, 99, 99, 99, 99}
-};
+    //============================
+    // TABELAS DA QUANTIZAÇÃO
+    //============================
+
+    // Matriz de quantização para o componente da luminância
+    const int QY[8][8] = {
+        {16, 11, 10, 16, 24, 40, 51, 61},
+        {12, 12, 14, 19, 26, 58, 60, 55},
+        {14, 13, 16, 24, 40, 57, 69, 56},
+        {14, 17, 22, 29, 51, 87, 80, 62},
+        {18, 22, 37, 56, 68, 109, 103, 77},
+        {24, 35, 55, 64, 81, 104, 113, 92},
+        {79, 64, 78, 87, 103, 121, 120, 101},
+        {72, 92, 95, 98, 112, 100, 103, 99}
+
+    };
+
+
+    // Matriz de quantização para os componentes de croôminancia
+    const int QC[8][8] = {
+        {17, 18, 24, 47, 99, 99, 99, 99},
+        {18, 21, 26, 66, 99, 99, 99, 99},
+        {24, 26, 56, 99, 99, 99, 99, 99},
+        {47, 66, 99, 99, 99, 99, 99, 99},
+        {99, 99, 99, 99, 99, 99, 99, 99},
+        {99, 99, 99, 99, 99, 99, 99, 99},
+        {99, 99, 99, 99, 99, 99, 99, 99},
+        {99, 99, 99, 99, 99, 99, 99, 99}
+    };
+
 
 //============================
 // FUNÇÕES PARA APLICAR A DCT
@@ -71,15 +77,15 @@ void multiplyBlocks(double res[8][8], const double block[8][8], const double B[8
     }
 }
 
-// Aplica a DCT em um bloco de tamanho blkSize x blocSize
-// Com os valores de um canal y, cb ou cr da imagem
-void dct(int blkSize, double blk[blkSize][blkSize], bool levelShift) {
+// Aplica a DCT em um bloco de tamanho size x size Com os valores de um canal
+// y, cb ou cr da imagem, podendo também aplicar levelshift
+void dct(int size, double blk[size][size], bool levelShift) {
     double aux[8][8];
 
     // Aplicando o levelShift para otimizar a quantização, caso necessário
     if(levelShift) {
-        for(int i = 0; i < blkSize; i++) {
-            for(int j = 0; j < blkSize; j++) {
+        for(int i = 0; i < size; i++) {
+            for(int j = 0; j < size; j++) {
                 blk[i][j] -= 128;
             }
         }
@@ -91,7 +97,7 @@ void dct(int blkSize, double blk[blkSize][blkSize], bool levelShift) {
 }
 
 // Para reobter os blocos em ycbcr, fazemos a dct inversa aplicando: CT.B.C
-void inverseDct(int blkSize, double blk[blkSize][blkSize], bool levelShift) {
+void inverseDct(int size, double blk[size][size], bool levelShift) {
     double aux[8][8];
 
     // Aplicando a formula DCT = CT.B.C
@@ -100,10 +106,63 @@ void inverseDct(int blkSize, double blk[blkSize][blkSize], bool levelShift) {
 
     // Revertendo o level shift, se necessário
     if(levelShift) {
-        for(int i = 0; i < blkSize; i++) {
-            for(int j = 0; j < blkSize; j++) {
+        for(int i = 0; i < size; i++) {
+            for(int j = 0; j < size; j++) {
                 blk[i][j] += 128;
             }
         }
+    }
+}
+
+// Aplica a quantização nos blocos que já passaram pela DCT
+void quantize(int size, double blk[size][size], int newBlk[size][size], int table) {
+    switch(table) {
+        case LUM_QNT_TBL:
+            // Aplicanado a quantização de luminância
+            for(int i = 0; i < size; i++) {
+                for(int j = 0; j < size; j++) {
+                    newBlk[i][j] = round(blk[i][j] / QY[i][j]);
+                }
+            }   
+
+        break;
+        case CROM_QNT_TBL:
+            // Aplicando a quantização de croominancia
+            for(int i = 0; i < size; i++) {
+                for(int j = 0; j < size; j++) {
+                    newBlk[i][j] = round(blk[i][j] / QC[i][j]);
+                }
+            }
+
+        break;
+        default:
+            return;
+    }
+}
+
+// Obtem os valores originais de um bloco já quantizado
+void dequantize(int size, int blk[size][size], double newBlk[size][size], int table) {
+
+    switch(table) {
+        case LUM_QNT_TBL:
+            // Aplicanado a quantização de luminância
+            for(int i = 0; i < size; i++) {
+                for(int j = 0; j < size; j++) {
+                    newBlk[i][j] = (double) blk[i][j] * QY[i][j];                
+                }
+            }   
+
+        break;
+        case CROM_QNT_TBL:
+            // Aplicando a quantização de croominancia
+            for(int i = 0; i < size; i++) {
+                for(int j = 0; j < size; j++) {
+                    newBlk[i][j] = (double) blk[i][j] * QC[i][j];
+                }
+            }
+
+        break;
+        default:
+            return;       
     }
 }
