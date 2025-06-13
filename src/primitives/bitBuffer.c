@@ -14,7 +14,7 @@ BITBUFFER *bitBufferCreate(int size) {
     bitBuffer = (BITBUFFER *) malloc(sizeof(BITBUFFER));
     if(bitBuffer == NULL)
         return NULL;
-    
+
     // Inicializando os valores e alocando o vetor interno
     bitBuffer->size = size;
     bitBuffer->buffer = (unsigned char *) malloc(size * sizeof(unsigned char));
@@ -45,32 +45,31 @@ int bitBufferGetByteSize(BITBUFFER *bitBuffer) {
 
     if(bitBuffer->occupied % 8 != 0)
         return (bitBuffer->occupied / 8) + 1; //Ocorre apenas ao fim do arquivo
-    else
-        return (bitBuffer->occupied / 8);
+    return (bitBuffer->occupied / 8);
 }
 
-// Dado um código especificado em uma string, esta função o insere no buffer
-// utilizando operações bitwise para a correta escrita no arquivo
-bool bitBufferInsert(BITBUFFER *bitBuffer, unsigned int *code, int size, FILE *pf) {
-    if(bitBuffer == NULL || pf == NULL)
+// Dado um vector com o código de huffman em unsigned char, esta função 
+// o insere no buffer utilizando operações bitwise para a
+// correta escrita no arquivo
+bool bitBufferInsert(BITBUFFER *bitBuffer, VECTOR *code) {
+    if(bitBuffer == NULL)
         return false;
 
     int currIndex = bitBufferGetByteSize(bitBuffer);
 
-    for(int i = 0; i < size; i++) {
+    for(int i = 0; i < vectorGetSize(code); i++) {
         // Desloca todos os bits para a esquerda e imprime o valor no menos significativo
         bitBuffer->buffer[currIndex] = bitBuffer->buffer[currIndex] << 1;
-        bitBuffer->buffer[currIndex] = bitBuffer->buffer[currIndex] | code[i];
+        bitBuffer->buffer[currIndex] = bitBuffer->buffer[currIndex] | vectorIndexAs(code, unsigned char, i);
 
         // Atualizando o número de bits ocupados e verificando se é necessário mudar o byte
         bitBuffer->occupied++;
         if(bitBuffer->occupied % 8 == 0) {
             currIndex++;
 
-            // Caso em que o próximo valor ultrapassa o limite do buffer
+            // Caso o próximo valor ultrapassa o limite do buffer
             if(currIndex >= bitBuffer->size) {
-                bitBufferWrite(bitBuffer, pf);
-                currIndex = 0;
+                return false;
             }
         }
     }

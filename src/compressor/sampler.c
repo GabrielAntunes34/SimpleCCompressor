@@ -18,7 +18,6 @@ DBMATRIX downSample420(DBMATRIX *channel) {
             average = (channel->matrix[i][j] + channel->matrix[i][j+1] + 
                        channel->matrix[i+1][j] + channel->matrix[i+1][j+1]) / 4;
 
-            // Verificar se isso aqui funciona...
             compressed.matrix[i / 2][j / 2] = average;
         }
     }

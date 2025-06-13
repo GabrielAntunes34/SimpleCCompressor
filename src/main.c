@@ -4,6 +4,7 @@
 // Funções de teste
 #include "test/bmpTests.h"
 #include "test/compressTest.h"
+#include "test/jpegTests.h"
 
 #include "primitives/matrix.h"
 #include "primitives/util.h"
@@ -22,7 +23,7 @@ int main() {
     char *bmp4 = "img/colors.bmp";
     char *testFile = "test.bmp";
 
-    testDctImage(bmp1, testFile);
+    testBitBuffer();
 
     return 0;
 }

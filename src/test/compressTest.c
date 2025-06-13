@@ -167,6 +167,8 @@ void testDctImage(char *bmpEntry, char *bmpExit) {
         dct(BLK_SIZE, block, true);
         quantize(BLK_SIZE, block, auxBlock, LUM_QNT_TBL);
 
+
+
         dequantize(BLK_SIZE, auxBlock, block, LUM_QNT_TBL);
         inverseDct(BLK_SIZE, block, true);
         dbMatrixSetBlock(&channelY, BLK_SIZE, i, block);
