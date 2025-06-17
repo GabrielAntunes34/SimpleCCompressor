@@ -54,15 +54,20 @@ void testSampler(char *bmpEntry, char *bmpExit) {
     DBMATRIX channelCr = dbMatrixCreate(heigth, width);
     bmpGetYcbcrChannels(bmp, &channelY, &channelCb, &channelCr);
 
+    // Calculando o padding dos canais
+    int pdCbH = calculateSample420Padding(channelCb.lines, 8);
+    int pdCbW = calculateSample420Padding(channelCb.cols, 8);
+    int pdCrH = calculateSample420Padding(channelCr.lines, 8);
+    int pdCrW = calculateSample420Padding(channelCr.cols, 8);
 
     // Aplicando e revertendo o downsampling
-    DBMATRIX spCb = downSample420(&channelCb);
-    DBMATRIX spCr = downSample420(&channelCr);
+    DBMATRIX spCb = downSample420(&channelCb, 8);
+    DBMATRIX spCr = downSample420(&channelCr, 8);
     dbMatrixDestroy(&channelCb);
     dbMatrixDestroy(&channelCr);
     
-    DBMATRIX newCb = upSample420(&spCb);
-    DBMATRIX newCr = upSample420(&spCr);
+    DBMATRIX newCb = upSample420(&spCb, pdCbH, pdCbW);
+    DBMATRIX newCr = upSample420(&spCr, pdCrH, pdCrW);
     dbMatrixDestroy(&spCb);
     dbMatrixDestroy(&spCr);
 
@@ -129,6 +134,7 @@ void testDct() {
     return;
 }
 
+
 // Executa toda a compressão com perda e faz a volta,
 // recriando a imagem original
 void testDctImage(char *bmpEntry, char *bmpExit) {
@@ -145,9 +151,15 @@ void testDctImage(char *bmpEntry, char *bmpExit) {
     DBMATRIX channelCr = dbMatrixCreate(heigth, width);
     bmpGetYcbcrChannels(bmp, &channelY, &channelCb, &channelCr);
 
+    // Calculando o padding dos canais
+    int pdCbH = calculateSample420Padding(channelCb.lines, 8);
+    int pdCbW = calculateSample420Padding(channelCb.cols, 8);
+    int pdCrH = calculateSample420Padding(channelCr.lines, 8);
+    int pdCrW = calculateSample420Padding(channelCr.cols, 8);
+
     // Aplicando o downsampling
-    DBMATRIX spCb = downSample420(&channelCb);
-    DBMATRIX spCr = downSample420(&channelCr);
+    DBMATRIX spCb = downSample420(&channelCb, 8);
+    DBMATRIX spCr = downSample420(&channelCr, 8);
     dbMatrixDestroy(&channelCb);
     dbMatrixDestroy(&channelCr);
     
@@ -167,8 +179,6 @@ void testDctImage(char *bmpEntry, char *bmpExit) {
         dct(BLK_SIZE, block, true);
         quantize(BLK_SIZE, block, auxBlock, LUM_QNT_TBL);
 
-
-
         dequantize(BLK_SIZE, auxBlock, block, LUM_QNT_TBL);
         inverseDct(BLK_SIZE, block, true);
         dbMatrixSetBlock(&channelY, BLK_SIZE, i, block);
@@ -178,20 +188,9 @@ void testDctImage(char *bmpEntry, char *bmpExit) {
         double block[8][8];
         int auxBlock[8][8];
 
-        printf("%d\n", i);
-        printf("1\n");
-
         dbMatrixGetBlock(&spCb, BLK_SIZE, i, block);
-        
-        printf("2\n");
-
         dct(BLK_SIZE, block, true);
-
-        printf("3\n");
-
         quantize(BLK_SIZE, block, auxBlock, CROM_QNT_TBL);
-
-        printf("4\n\n");
 
         dequantize(BLK_SIZE, auxBlock, block, CROM_QNT_TBL);
         inverseDct(BLK_SIZE, block, true);
@@ -212,8 +211,8 @@ void testDctImage(char *bmpEntry, char *bmpExit) {
     }
 
     // Revertendo o downsampling 
-    DBMATRIX newCb = upSample420(&spCb);
-    DBMATRIX newCr = upSample420(&spCr);
+    DBMATRIX newCb = upSample420(&spCb, pdCbH, pdCbW);
+    DBMATRIX newCr = upSample420(&spCr, pdCrH, pdCrW);
     dbMatrixDestroy(&spCb);
     dbMatrixDestroy(&spCr);
 
