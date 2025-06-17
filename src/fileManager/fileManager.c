@@ -102,9 +102,15 @@ bool compress(BMP *bmp) {
 
     bmpGetYcbcrChannels(bmp, &channelY, &channelCb, &channelCr);
 
-    // Downsampling each channel
-    DBMATRIX spChannelCb = downSample420(&channelCb);
-    DBMATRIX spChannelCr = downSample420(&channelCr);
+    // Calculando o padding dos canais
+    int pdCbH = calculateSample420Padding(channelCb.lines, BLK_SIZE);
+    int pdCbW = calculateSample420Padding(channelCb.cols, BLK_SIZE);
+    int pdCrH = calculateSample420Padding(channelCr.lines, BLK_SIZE);
+    int pdCrW = calculateSample420Padding(channelCr.cols, BLK_SIZE);
+
+    // Downsampling de cada canal
+    DBMATRIX spChannelCb = downSample420(&channelCb, BLK_SIZE);
+    DBMATRIX spChannelCr = downSample420(&channelCr, BLK_SIZE);
     dbMatrixDestroy(&channelCb);
     dbMatrixDestroy(&channelCr);
 
@@ -120,6 +126,7 @@ bool compress(BMP *bmp) {
         dbMatrixGetBlock(&channelY, BLK_SIZE, i, block);
         dct(BLK_SIZE, block, true);
     }
+
     return false;
 }
 
