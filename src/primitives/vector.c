@@ -140,6 +140,23 @@ void vectorDestroy(VECTOR **vec) {
 }
 
 
+// Função que mescla dois vetores, copiando os elementos do vetor src para o vetor dest
+void mergeVectors(VECTOR *dest, VECTOR *src) {
+    if(dest == NULL || src == NULL)
+        return;
+
+    // Verificando se é necessário realocar o espaço de vector
+    if(dest->size + src->size > dest->capacity) {
+        dest->capacity = dest->size + src->size;
+        dest->data = realloc(dest->data, dest->elemSize * dest->capacity);
+    }
+
+    // Copiando os elementos do vetor src para o vetor dest
+    memcpy((char *) dest->data + (dest->size * dest->elemSize), src->data, src->size * dest->elemSize);
+    dest->size += src->size;
+}
+
+
 /*
 --- REGRAS DO CÓDIGO GENÉRICO ---
 - A struct precisará armazenar o tamanho em bytes do tipo guardado
