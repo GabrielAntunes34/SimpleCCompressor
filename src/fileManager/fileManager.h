@@ -3,23 +3,27 @@
     #include <stdio.h>
     #include <stdlib.h>
     #include <stdbool.h>
+
     #include "bfHeader.h"
     #include "bfInfoHeader.h"
+    #include "bmp.h"
 
     #include "../primitives/vector.h"
+    #include "../primitives/matrix.h"
     #include "../primitives/pixel.h"
     #include "../primitives/util.h"
+
+    #include "../compressor/sampler.h"
+    #include "../compressor/dct.h"
     
     // Funções de I/O para arquivos
-    VECTOR *loadBmpImage(char *bmpName, BFHEADER *fHeader, BIHEADER *iHeader, bool asYcbcr);
-    //bool writeBmpImage(FILE *bmpPtr, BFHEADER *fHeader, BIHEADER *iHeader, VECTOR *imgData);
-    //void printBmpData();
-    //void printHeaders(BFHEADER *fHeader, BIHEADER *iHeader);
+    BMP *loadBmpImage(char *bmpName);
+    bool writeBmpImage(char *bmpName, BMP *newImage);
+
     //bool writeJPEGImage()
 
     // Funções de compressão / descompressão
-
-    // Manipulações das imagens
-    //bool convertRgbToYcbcr();
+    //bool compress(BMP *bmp);
+    //bool decompress();
 
 #endif

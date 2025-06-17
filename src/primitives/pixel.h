@@ -4,6 +4,8 @@
     #include <stdlib.h>
     #include <stdbool.h>
 
+    #include "util.h"
+
     // Define um tipo pixel para o formato rgb (usual das imagens
     // bmp)
     typedef struct pixelRgb {
@@ -14,7 +16,7 @@
     typedef struct pixelRgb pixelRgb;
 
     // Define um pixel para o formato YCbCr (utilizado na compressão
-    // e na aplicação da TCT)
+    // e na aplicação da DCT)
     typedef struct pixelYcbcr {
         double y;
         double cb;

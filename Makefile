@@ -10,6 +10,7 @@ SRC_DIR = src
 PRIM_DIR = src/primitives
 COMP_DIR = src/compressor
 FMAN_DIR = src/fileManager
+TEST_DIR = src/test
 OBJ_DIR = obj
 
 # Nome do binário final
@@ -20,7 +21,8 @@ TARGET = main
 SRC_FILES = $(wildcard $(SRC_DIR)/main.c) \
             $(wildcard $(PRIM_DIR)/*.c) \
             $(wildcard $(COMP_DIR)/*.c) \
-            $(wildcard $(FMAN_DIR)/*.c)
+            $(wildcard $(FMAN_DIR)/*.c) \
+			$(wildcard $(TEST_DIR)/*.c)
 
 # Convertendo os arquivos .c em arquivos .o correspondentes
 # Cada diretório de origem será convertido para um caminho correto para o diretório de objetos

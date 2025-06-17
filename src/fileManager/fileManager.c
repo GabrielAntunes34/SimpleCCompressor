@@ -15,98 +15,115 @@ bool isBmpValidForCompression(BIHEADER *h) {
     if(h->bmpHeight < 8 || h->bmpWidth > 1280 || h->bmpHeight < 8 || h->bmpHeight > 800)
         return false;
 
-    // Verificando se o arquivo não tem nenhuma compressão
+    // Verificando se o arquivo já não tem nenhuma compressão
     if(h->compression != BI_RGB)
         return false;
 
     return true;
 }
 
-// Auxiliar que se dedica a carregar e conferir os cabeçalhos de um BMP
-bool loadBmpHeaders(FILE *bmpPtr, BFHEADER *fHeader, BIHEADER * iHeader) {
-    bfHeaderRead(fHeader, bmpPtr);
-    if(!bfHeaderIsValid(fHeader)) {
-        displayError("Arquivo não é uma imagem BMP!");
-        fHeader = NULL;
-        return false;
-    }
-
-    biHeaderRead(iHeader, bmpPtr);
-    if(!isBmpValidForCompression(iHeader)) {
-        displayError("Dimensões da imagem BMP fogem ao escopo deste compressor.");
-        fHeader = NULL;
-        iHeader = NULL;
-        return false;
-    }
-
-    return true;
-}
-
-VECTOR *loadBmpData(FILE *bmpPtr, int pixelQntd, bool asYcbcr) {
-    VECTOR *imgData;
-
-    if(asYcbcr) {
-        PIXELYCBCR px;  // Auxiliar para ler os pixels
-        imgData = vectorCreateAs(pixelRgb, NULL);
-        if(imgData == NULL)
-            return NULL;
-
-        for(int i = 0; i < pixelQntd; i++) {
-            px = pixelYcbcrRead(bmpPtr);
-            vectorPushBack(imgData, &px);
-        }
-    }
-    else {
-        PIXELRGB px; // auxiliar para ler e inserir os pixels
-        imgData = vectorCreateAs(pixelYcbcr, NULL);
-        if(imgData == NULL)
-            return NULL;
-
-        for(int i = 0; i < pixelQntd; i++) {
-            px = pixelRgbRead(bmpPtr);
-            vectorPushBack(imgData, &px);
-        }
-    }
-
-    return imgData;
-}
-
-// Carrega os arquivos de imagens bmp em um vector de pixels,
-// além de setar os headers na memóris
-VECTOR *loadBmpImage(char *bmpName, BFHEADER *fHeader, BIHEADER *iHeader, bool asYcbcr) {
-    if(bmpName == NULL || fHeader == NULL || iHeader == NULL)
-        return NULL;
-    
+BMP *loadBmpImage(char *bmpName) {
+    BMP *image;
     FILE *bmpPtr;
-    VECTOR *imgData;
-    int pixelQntd;
-    bool checkAux;      // Recebe os retornos de funções bool para verificações
+    BIHEADER iHeader;
 
-    // Abrindo o arquivo bmp
+    // Abrindo o ponteiro para a image
     bmpPtr = fopen(bmpName, "rb");
     if(bmpPtr == NULL) {
-        displayError("Nao foi possível abrir o arquivo.");
+        displayError("Não foi possível abrir o arquivo bmp");
         return NULL;
     }
 
-    // Carregando os cabeçalhos
-    checkAux = loadBmpHeaders(bmpPtr, fHeader, iHeader);
-    if(!checkAux)
+    // Realizando a leitura do BMP
+    image = bmpRead(bmpPtr);
+    if(image == NULL) {
+        displayError("Não foi possível ler todo o bmp");
         return NULL;
+    }
+    fclose(bmpPtr);
 
-    // Populando o vector de acordo com a forma que os bits serão carregados
-    fseek(bmpPtr, fHeader->bmpOffset, SEEK_SET);
-    pixelQntd = iHeader->bmpHeight * iHeader->bmpWidth;
-    imgData = loadBmpData(bmpPtr, pixelQntd, asYcbcr);
+    // Verificando se este bmp já não foi comprimido ou está nas dimensões
+    // Permitidas para o trabalho
+    iHeader = bmpGetInfoHeader(image);
+    if(!isBmpValidForCompression(&iHeader)) {
+        displayError("Este bmp não pode ser comprimido");
+        bmpDestroy(&image);
+        return NULL;
+    }
 
-    return imgData;
+    return image;
 }
 
-//bool writeBMPImage(char *bmpName) {
+// Recebe um novo bmp descomprimido para ser escrito em um arquivo
+// *Obs: Ela não apaga o BMP!
+bool writeBmpImage(char *bmpName, BMP *newImage) {
+    FILE *bmpPtr;
+    BFHEADER fHeader;
+    bool checkWrite;
 
-//}
+    // Verificando o bmp recebido
+    fHeader = bmpGetFileHeader(newImage);
+    if(!bfHeaderIsValid(&fHeader)) {
+        displayError("BMP inválido na memória");
+        return false;
+    }
 
+    // Abrindo o arquivo
+    bmpPtr = fopen(bmpName, "wb");
+    if(bmpPtr == NULL) {
+        displayError("Não foi possível abrir o arquivo");
+        return false;
+    }
+    
+    checkWrite = bmpWrite(newImage, bmpPtr);
+    if(!checkWrite) {
+        displayError("Não foi possível escrever todo o bmp");
+        return false;
+    }
+
+    fclose(bmpPtr);
+    return true;
+}
 
 //==========================
 // Interface do compressor
 //==========================
+
+
+// Comprime uma imagem bmp já carregada com o algorítimo JPEG
+
+bool compress(BMP *bmp) {
+    int width = bmpGetWidth(bmp);
+    int heigth = bmpGetHeigth(bmp);
+
+    DBMATRIX channelY  = dbMatrixCreate(heigth, width);
+    DBMATRIX channelCb = dbMatrixCreate(heigth, width);
+    DBMATRIX channelCr = dbMatrixCreate(heigth, width);
+
+    bmpGetYcbcrChannels(bmp, &channelY, &channelCb, &channelCr);
+
+    // Downsampling each channel
+    DBMATRIX spChannelCb = downSample420(&channelCb);
+    DBMATRIX spChannelCr = downSample420(&channelCr);
+    dbMatrixDestroy(&channelCb);
+    dbMatrixDestroy(&channelCr);
+
+    // Obtendo a quantidade de blocos de dados
+    int yBlocks = dbMatrixGetBlockQntd(&channelY, BLK_SIZE);
+    int cbBlocks = dbMatrixGetBlockQntd(&spChannelCb, BLK_SIZE);
+    int crBlocks = dbMatrixGetBlockQntd(&spChannelCr, BLK_SIZE);
+
+    // Loop de compressão dos blocos y
+    for(int i = 0; i < yBlocks; i++) {
+        double block[8][8];
+        
+        dbMatrixGetBlock(&channelY, BLK_SIZE, i, block);
+        dct(BLK_SIZE, block, true);
+    }
+    return false;
+}
+
+// Descomprime uma imagem JPEG para um bmp
+bool decompress() {
+    return false;
+}

@@ -1,7 +1,5 @@
 #include "util.h"
 
-// Recebe um ponteiro e casta para int nu e cru
-
 //=====================================
 // Funções para tratamento de erros
 //=====================================

@@ -17,15 +17,14 @@
     typedef struct vector VECTOR;
     typedef struct vector vector;
 
-
     VECTOR *vector_create(size_t elemSize, void (*elemDestroy)(void **));
 
-    void *vector_index(VECTOR *vec, size_t index);
-    size_t vectorGetSize(VECTOR *vec);
-    size_t vectorGetCapacity(VECTOR *vec);
+    void *vector_index(VECTOR *vec, long int index);
+    long int vectorGetSize(VECTOR *vec);
+    long int vectorGetCapacity(VECTOR *vec);
 
     bool vectorPushBack(VECTOR *vec, const void *elem);
-    bool vectorSetIndex(VECTOR *vec, size_t index, const void *elem);
+    bool vectorSetIndex(VECTOR *vec, long int index, const void *elem);
 
     void vector_print(VECTOR *vec, void (printElem)(const void*));
     void vectorDestroy(VECTOR **vec);

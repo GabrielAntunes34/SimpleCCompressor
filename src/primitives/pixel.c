@@ -11,9 +11,10 @@ PIXELYCBCR pixelConvertRgbToYcbcr(PIXELRGB *pixel) {
     PIXELYCBCR newPixel;
 
     // Aplicando a fórmula de conversão para todos os campos (menos cg)
-    newPixel.y = (0.299 * pixel->r) + (0.5876 * pixel->g) + (0.114 * pixel->b);
-    newPixel.cb = 0.564 * (pixel->b - newPixel.y);
-    newPixel.cr = 0.713 * (pixel->r - newPixel.y);
+    // Somamos 128 em cb e cr para garantir todas as variaveis no intervalo [0, 255]
+    newPixel.y = (double) (0.299 * pixel->r) + (0.587 * pixel->g) + (0.114 * pixel->b);
+    newPixel.cb = (double) 0.564 * (pixel->b - newPixel.y) + 128;
+    newPixel.cr = (double) 0.713 * (pixel->r - newPixel.y) + 128;
 
     return newPixel;
 }
@@ -25,12 +26,34 @@ PIXELRGB pixelConvertYcbcrToRgb(PIXELYCBCR *pixel) {
         return errorPixel;
     }
 
+    // Retirando o padding de 128
+    pixel->cb -= 128;
+    pixel->cr -= 128;
+
+    if(pixel->cb > 127.9 && pixel->cb < 129.0) printf("%lf\n\n", pixel->cb);
+    if(pixel->cr > 127.9 && pixel->cr < 129.0) printf("%lf\n\n", pixel->cr);
+
     // Aplicando a fórmula de conversão para todos os campos, e convertendo
     // para unsigned char.
     PIXELRGB newPixel;
-    newPixel.r = (unsigned char) (pixel->y + (1.402 * pixel->cr));
-    newPixel.g = (unsigned char) (pixel->y - (0.344 * pixel->cb) - (0.714 * pixel->cr));
-    newPixel.b = (unsigned char) (pixel->y + (1.772 * pixel->cb)); 
+
+    double r = (pixel->y + (1.402 * pixel->cr));
+    double g = (pixel->y - (0.344 * pixel->cb) - (0.714 * pixel->cr));
+    double b = (pixel->y + (1.772 * pixel->cb));
+    
+    if(r > 255) printf("r: %lf\n", r);
+
+    // Adequando os erros de arredondamento para [0, 255]
+    r = min(255.0, max(0.0, r));
+    g = min(255.0, max(0.0, g));
+    b = min(255.0, max(0.0, b));
+
+    if(r > 255) printf("r: %lf\n\n", r);
+
+    // Aplicando a conversão de tipo
+    newPixel.r = (unsigned char) r;
+    newPixel.g = (unsigned char) g;
+    newPixel.b = (unsigned char) b;
 
     return newPixel;
 }
