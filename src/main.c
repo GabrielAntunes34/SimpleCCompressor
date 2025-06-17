@@ -5,6 +5,7 @@
 #include "test/bmpTests.h"
 #include "test/compressTest.h"
 #include "test/jpegTests.h"
+#include "test/entropyTests.h"
 
 #include "primitives/matrix.h"
 #include "primitives/util.h"
@@ -23,7 +24,7 @@ int main() {
     char *bmp4 = "img/colors.bmp";
     char *testFile = "test.bmp";
 
-    testBitBuffer();
+    testEncodingDecoding();
 
     return 0;
 }

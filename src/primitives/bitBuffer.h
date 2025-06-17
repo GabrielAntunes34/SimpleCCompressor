@@ -20,6 +20,9 @@
     bool bitBufferInsert(BITBUFFER *bitBuffer, VECTOR *code);
     bool bitBufferClean(BITBUFFER *bitBuffer);
     bool bitBufferWrite(BITBUFFER *bitBuffer, FILE *pf);
+    bool bitBufferReadBit(BITBUFFER *bitBuffer, int position);
+    int bitBufferGetOccupiedBits(BITBUFFER *bitBuffer);
+
 
     void bitBufferPrint(const void *bitBuffer);
     bool bitBufferDestroy(BITBUFFER **bitBuffer);
