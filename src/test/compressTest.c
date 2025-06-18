@@ -55,10 +55,10 @@ void testSampler(char *bmpEntry, char *bmpExit) {
     bmpGetYcbcrChannels(bmp, &channelY, &channelCb, &channelCr);
 
     // Calculando o padding dos canais
-    int pdCbH = calculateSample420Padding(channelCb.lines, 8);
-    int pdCbW = calculateSample420Padding(channelCb.cols, 8);
-    int pdCrH = calculateSample420Padding(channelCr.lines, 8);
-    int pdCrW = calculateSample420Padding(channelCr.cols, 8);
+    int pdCbH = getSample420Padding(channelCb.lines, 8);
+    int pdCbW = getSample420Padding(channelCb.cols, 8);
+    int pdCrH = getSample420Padding(channelCr.lines, 8);
+    int pdCrW = getSample420Padding(channelCr.cols, 8);
 
     // Aplicando e revertendo o downsampling
     DBMATRIX spCb = downSample420(&channelCb, 8);
@@ -152,10 +152,10 @@ void testDctImage(char *bmpEntry, char *bmpExit) {
     bmpGetYcbcrChannels(bmp, &channelY, &channelCb, &channelCr);
 
     // Calculando o padding dos canais
-    int pdCbH = calculateSample420Padding(channelCb.lines, 8);
-    int pdCbW = calculateSample420Padding(channelCb.cols, 8);
-    int pdCrH = calculateSample420Padding(channelCr.lines, 8);
-    int pdCrW = calculateSample420Padding(channelCr.cols, 8);
+    int pdCbH = getSample420Padding(channelCb.lines, 8);
+    int pdCbW = getSample420Padding(channelCb.cols, 8);
+    int pdCrH = getSample420Padding(channelCr.lines, 8);
+    int pdCrW = getSample420Padding(channelCr.cols, 8);
 
     // Aplicando o downsampling
     DBMATRIX spCb = downSample420(&channelCb, 8);

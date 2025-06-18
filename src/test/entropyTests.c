@@ -28,7 +28,7 @@ void testEncodingDecoding() {
         printf("\n");
     }
 
-    zigZag = zigZagNxN(matrix);
+    //zigZag = zigZagNxN(BLK_SIZE, matrix);
 
     // Free na matriz original
     for (int i = 0; i < BLK_SIZE; i++) {

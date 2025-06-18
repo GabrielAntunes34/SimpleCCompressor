@@ -16,6 +16,7 @@
 
     bool bitBufferIsEmpty(BITBUFFER *bitBuffer);
 
+    int bitBufferGetSize(BITBUFFER *bitBuffer);
     int bitBufferGetByteSize(BITBUFFER *bitBuffer);
     bool bitBufferInsert(BITBUFFER *bitBuffer, VECTOR *code);
     bool bitBufferClean(BITBUFFER *bitBuffer);

@@ -1,33 +1,13 @@
 #include "sampler.h"
 
 // Calcula o padding necessário para uma dimensão do canal com downsample aplicado
-int calculateSample420Padding(int dimension, int blkSize) {
+int getSample420Padding(int dimension, int blkSize) {
     int sampledDim = dimension / 2;
 
     if(sampledDim % 8 != 0)
         return 8 - (sampledDim % 8);
     return 0;
 }
-/*
-int calculateSamplePadding(DBMATRIX *channel, int *pdHeigth, int *pdWidth) {
-    int newHeigth = channel->lines / 2;
-    int newWidth = channel->cols / 2;
-
-    printf("nH: %d\n", newHeigth);
-
-    // Padding para a altura alcançar o próximo múltiplo de 8
-    if(newHeigth % 8 != 0)
-        *pdHeigth = 8 - (newHeigth % 8);
-    else
-        *pdHeigth = 0;
-
-    // Padding para a largura alcançar o próximo múltiplo de 8
-    if(newWidth % 8 != 0)
-        *pdWidth = 8 - (newWidth % 8);
-    else
-        *pdWidth = 0;
-}
-*/
 
 // Aplica a subamostragem 4:2:0 na matrix yCbCr por meio
 // Da média dos valores em um bloco 2 x 2
@@ -38,8 +18,8 @@ DBMATRIX downSample420(DBMATRIX *channel, int blkSize) {
     int width = channel->cols;
 
     // Calculando o padding, quando necessário
-    int pdH = calculateSample420Padding(channel->lines, blkSize);
-    int pdW = calculateSample420Padding(channel->cols, blkSize);
+    int pdH = getSample420Padding(channel->lines, blkSize);
+    int pdW = getSample420Padding(channel->cols, blkSize);
 
     // Instanciando a nova matriz dos dados subamostrados
     compressed = dbMatrixCreate((heigth / 2) + pdH, (width / 2) + pdW);

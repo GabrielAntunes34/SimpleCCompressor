@@ -15,6 +15,7 @@
 #include "fileManager/bfInfoHeader.h"
 #include "fileManager/fileManager.h"
 #include "fileManager/bmp.h"
+#include "fileManager/compressor.h"
 
 
 int main() {
@@ -24,7 +25,7 @@ int main() {
     char *bmp4 = "img/colors.bmp";
     char *testFile = "test.bmp";
 
-    testEncodingDecoding();
+    compress(bmp1, testFile);
 
     return 0;
 }

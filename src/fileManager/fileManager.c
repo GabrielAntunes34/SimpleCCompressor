@@ -22,6 +22,7 @@ bool isBmpValidForCompression(BIHEADER *h) {
     return true;
 }
 
+// Carrega os dadaos e cabeçalhos de um arquivo bmp na memória
 BMP *loadBmpImage(char *bmpName) {
     BMP *image;
     FILE *bmpPtr;
@@ -85,52 +86,32 @@ bool writeBmpImage(char *bmpName, BMP *newImage) {
     return true;
 }
 
-//==========================
-// Interface do compressor
-//==========================
+bool writeCmpFile(char *binName, BIHEADER iHeader, BFHEADER fHeader, CMPHEADER cmpHeader, BITBUFFER *cmpData) {
+    if(binName == NULL || cmpData == NULL)
+        return false;
+    
+    FILE *binPtr;
+    bool checkAux;
 
-
-// Comprime uma imagem bmp já carregada com o algorítimo JPEG
-
-bool compress(BMP *bmp) {
-    int width = bmpGetWidth(bmp);
-    int heigth = bmpGetHeigth(bmp);
-
-    DBMATRIX channelY  = dbMatrixCreate(heigth, width);
-    DBMATRIX channelCb = dbMatrixCreate(heigth, width);
-    DBMATRIX channelCr = dbMatrixCreate(heigth, width);
-
-    bmpGetYcbcrChannels(bmp, &channelY, &channelCb, &channelCr);
-
-    // Calculando o padding dos canais
-    int pdCbH = calculateSample420Padding(channelCb.lines, BLK_SIZE);
-    int pdCbW = calculateSample420Padding(channelCb.cols, BLK_SIZE);
-    int pdCrH = calculateSample420Padding(channelCr.lines, BLK_SIZE);
-    int pdCrW = calculateSample420Padding(channelCr.cols, BLK_SIZE);
-
-    // Downsampling de cada canal
-    DBMATRIX spChannelCb = downSample420(&channelCb, BLK_SIZE);
-    DBMATRIX spChannelCr = downSample420(&channelCr, BLK_SIZE);
-    dbMatrixDestroy(&channelCb);
-    dbMatrixDestroy(&channelCr);
-
-    // Obtendo a quantidade de blocos de dados
-    int yBlocks = dbMatrixGetBlockQntd(&channelY, BLK_SIZE);
-    int cbBlocks = dbMatrixGetBlockQntd(&spChannelCb, BLK_SIZE);
-    int crBlocks = dbMatrixGetBlockQntd(&spChannelCr, BLK_SIZE);
-
-    // Loop de compressão dos blocos y
-    for(int i = 0; i < yBlocks; i++) {
-        double block[8][8];
-        
-        dbMatrixGetBlock(&channelY, BLK_SIZE, i, block);
-        dct(BLK_SIZE, block, true);
+    // Abrindo o novo arquivo comprimido para a escrita
+    binPtr = fopen(binName, "wb");
+    if(!binPtr) {
+        displayError("Erro ao abrir o novo arquivo");
+        return false;
     }
 
-    return false;
-}
+    // Escrevendo os cabeçalhos
+    bfHeaderWrite(&fHeader, binPtr);
+    biHeaderWrite(&iHeader, binPtr);
+    cmpHeaderWrite(&cmpHeader, binPtr);
 
-// Descomprime uma imagem JPEG para um bmp
-bool decompress() {
-    return false;
+    // escrevendo os dados
+    checkAux = bitBufferWrite(cmpData, binPtr);
+    if(!checkAux) {
+        displayError("Algo de errado ocorreu ao descarregar os dados comprimidos");
+        return false;
+    }
+
+    fclose(binPtr);
+    return true;
 }

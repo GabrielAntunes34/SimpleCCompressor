@@ -99,7 +99,7 @@ bool bitBufferWrite(BITBUFFER *bitBuffer, FILE *pf) {
     indexes = bitBufferGetByteSize(bitBuffer);
     
     // Escrevendo cada byte ocupado no arquivo.
-    // Para o último byte verificamos se ele está completamente cheio. Se sim
+    // Para o último byte verificamos se ele está completamente cheio. Se nao
     // O byte formado será escrito de trás para frente, com os zeros que sobram
     // Sendo considerados descartáveis no arquivo
     for(int i = 0; i < indexes; i++) {
@@ -174,9 +174,17 @@ bool bitBufferReadBit(BITBUFFER *bitBuffer, int position) {
     return (bitBuffer->buffer[byteIndex] >> (7 - bitOffset)) & 1;
 }
 
+// Função que retorna o número de bits ocupados no bitbuffer
 int bitBufferGetOccupiedBits(BITBUFFER *bitBuffer) {
     if(bitBuffer == NULL) {
         return BITBUFFER_ERROR; // Erro ao acessar o bitBuffer
     }
     return bitBuffer->occupied;
+}
+
+// Função que retorna o tamanho em bytes alocados para o bitBuffer
+int bitBufferGetSize(BITBUFFER *bitBuffer) {
+    if(bitBuffer == NULL)
+        return BITBUFFER_ERROR;
+    return bitBuffer->size;
 }
