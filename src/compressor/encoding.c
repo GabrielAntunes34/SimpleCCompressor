@@ -551,6 +551,7 @@ RLEPairs huffman_decoding(bitBuffer* buffer) {
         int run, category;
         if (!decodeACSymbol(buffer, &pos, &run, &category)) {
             // Erro na decodificação Huffman
+            printf("Erro na leitura de um simbolo durante a decodificação huffman");
             break;
         }
 
