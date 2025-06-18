@@ -6,8 +6,10 @@
 
     #include "bfHeader.h"
     #include "bfInfoHeader.h"
+    #include "cmpHeader.h"
     #include "bmp.h"
 
+    #include "../primitives/bitBuffer.h"
     #include "../primitives/vector.h"
     #include "../primitives/matrix.h"
     #include "../primitives/pixel.h"
@@ -20,7 +22,7 @@
     BMP *loadBmpImage(char *bmpName);
     bool writeBmpImage(char *bmpName, BMP *newImage);
 
-    //bool writeJPEGImage()
+    bool writeCmpFile(char *binName, BIHEADER iHeader, BFHEADER fHeader, CMPHEADER cmpHeader, BITBUFFER *cmpData);
 
     // Funções de compressão / descompressão
     //bool compress(BMP *bmp);

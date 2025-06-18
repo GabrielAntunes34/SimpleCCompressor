@@ -22,6 +22,7 @@ bool isBmpValidForCompression(BIHEADER *h) {
     return true;
 }
 
+// Carrega os dadaos e cabeçalhos de um arquivo bmp na memória
 BMP *loadBmpImage(char *bmpName) {
     BMP *image;
     FILE *bmpPtr;
@@ -82,6 +83,36 @@ bool writeBmpImage(char *bmpName, BMP *newImage) {
     }
 
     fclose(bmpPtr);
+    return true;
+}
+
+bool writeCmpFile(char *binName, BIHEADER iHeader, BFHEADER fHeader, CMPHEADER cmpHeader, BITBUFFER *cmpData) {
+    if(binName == NULL || cmpData == NULL)
+        return false;
+    
+    FILE *binPtr;
+    bool checkAux;
+
+    // Abrindo o novo arquivo comprimido para a escrita
+    binPtr = fopen(binName, "wb");
+    if(binPtr) {
+        displayError("BMP inválido na memória");
+        return false;
+    }
+
+    // Escrevendo os cabeçalhos
+    bfHeaderWrite(&fHeader, binPtr);
+    biHeaderWrite(&iHeader, binPtr);
+    cmpHeaderWrite(&cmpHeader, binPtr);
+
+    // escrevendo os dados
+    checkAux = bitBufferWrite(cmpData, binPtr);
+    if(!checkAux) {
+        displayError("Algo de errado ocorreu ao descarregar os dados comprimidos");
+        return false;
+    }
+
+    fclose(binPtr);
     return true;
 }
 

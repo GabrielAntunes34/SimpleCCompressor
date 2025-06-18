@@ -14,6 +14,7 @@
 #include "fileManager/bfInfoHeader.h"
 #include "fileManager/fileManager.h"
 #include "fileManager/bmp.h"
+#include "fileManager/compressor.h"
 
 
 int main() {
@@ -23,7 +24,7 @@ int main() {
     char *bmp4 = "img/colors.bmp";
     char *testFile = "test.bmp";
 
-    testDctImage(bmp1, testFile);
+    compress(bmp1, testFile);
 
     /*
     DBMATRIX test = dbMatrixCreate(10, 16);
