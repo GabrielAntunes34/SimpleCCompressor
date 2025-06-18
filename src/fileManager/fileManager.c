@@ -86,8 +86,8 @@ bool writeBmpImage(char *bmpName, BMP *newImage) {
     return true;
 }
 
-bool writeCmpFile(char *binName, BIHEADER iHeader, BFHEADER fHeader, CMPHEADER cmpHeader, BITBUFFER *cmpData) {
-    if(binName == NULL || cmpData == NULL)
+bool writeCmpFile(char *binName, BIHEADER iHeader, BFHEADER fHeader, CMPHEADER cmpHeader, BITBUFFER *cmpY, BITBUFFER *cmpCb, BITBUFFER *cmpCr) {
+    if(binName == NULL || cmpY == NULL || cmpCb == NULL || cmpCr == NULL)
         return false;
     
     FILE *binPtr;
@@ -103,14 +103,12 @@ bool writeCmpFile(char *binName, BIHEADER iHeader, BFHEADER fHeader, CMPHEADER c
     // Escrevendo os cabeçalhos
     bfHeaderWrite(&fHeader, binPtr);
     biHeaderWrite(&iHeader, binPtr);
-    cmpHeaderWrite(&cmpHeader, binPtr);
+    //cmpHeaderWrite(&cmpHeader, binPtr);
 
     // escrevendo os dados
-    checkAux = bitBufferWrite(cmpData, binPtr);
-    if(!checkAux) {
-        displayError("Algo de errado ocorreu ao descarregar os dados comprimidos");
-        return false;
-    }
+    bitBufferWrite(cmpY, binPtr);
+    bitBufferWrite(cmpCb, binPtr);
+    bitBufferWrite(cmpCr, binPtr);
 
     fclose(binPtr);
     return true;

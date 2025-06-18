@@ -13,8 +13,11 @@ bool cmpHeaderRead(CMPHEADER *header, FILE *filePtr) {
     fread(&header->yBlocks, sizeof(int), 1, filePtr);
     fread(&header->cbBlocks, sizeof(int), 1, filePtr);
     fread(&header->crBlocks, sizeof(int), 1, filePtr);
-    fread(&header->cromPaddingHeigth, sizeof(int), 1, filePtr);
-    fread(&header->cromPaddingWidth, sizeof(int), 1, filePtr);
+    fread(&header->cromPdHeigth, sizeof(int), 1, filePtr);
+    fread(&header->cromPdWidth, sizeof(int), 1, filePtr);
+    fread(&header->yCmpBytes, sizeof(int), 1, filePtr);
+    fread(&header->cbCmpBytes, sizeof(int), 1, filePtr);
+    fread(&header->crCmpBytes, sizeof(int), 1, filePtr);
 
     return true;
 }
@@ -32,8 +35,11 @@ bool cmpHeaderWrite(CMPHEADER *header, FILE *filePtr) {
     fwrite(&header->yBlocks, sizeof(int), 1, filePtr);
     fwrite(&header->cbBlocks, sizeof(int), 1, filePtr);
     fwrite(&header->crBlocks, sizeof(int), 1, filePtr);
-    fwrite(&header->cromPaddingHeigth, sizeof(int), 1, filePtr);
-    fwrite(&header->cromPaddingWidth, sizeof(int), 1, filePtr);
+    fwrite(&header->cromPdHeigth, sizeof(int), 1, filePtr);
+    fwrite(&header->cromPdWidth, sizeof(int), 1, filePtr);
+    fread(&header->yCmpBytes, sizeof(int), 1, filePtr);
+    fread(&header->cbCmpBytes, sizeof(int), 1, filePtr);
+    fread(&header->crCmpBytes, sizeof(int), 1, filePtr);
 
     return true;
 }
@@ -47,7 +53,10 @@ bool cmpHeaderPrint(CMPHEADER *header) {
     printf("Número de blocos no canal Y: %d\n", header->yBlocks);
     printf("Número de blocos no canal Cb: %d\n", header->cbBlocks);
     printf("Número de blocos no canal Cr: %d\n", header->crBlocks);
-    printf("Padding adcionado na altura das croôminancias: %d", header->cromPaddingHeigth);
-    printf("Padding adcionado na largura das croôminancias: %d", header->cromPaddingWidth);
+    printf("Padding adcionado na altura das croôminancias: %d\n", header->cromPdHeigth);
+    printf("Padding adcionado na largura das croôminancias: %d\n", header->cromPdWidth);
+    printf("Número de bytes finais do canal y: %d\n", header->yCmpBytes);
+    printf("Número de bytes finais do canal Cb: %d\n", header->cbCmpBytes);
+    printf("Número de bytes finais do canal Cr: %d\n", header->crCmpBytes);
     return true;
 }

@@ -24,8 +24,10 @@ int main() {
     char *bmp3 = "img/testImg3.bmp";
     char *bmp4 = "img/colors.bmp";
     char *testFile = "test.bmp";
+    char *testFile2 = "decTest.bmp";
 
-    compress(bmp1, testFile);
+    compress(bmp3, testFile);
+    //decompress(testFile, testFile2);
 
     return 0;
 }

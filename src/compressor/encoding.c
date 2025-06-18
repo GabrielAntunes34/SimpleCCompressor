@@ -318,17 +318,14 @@ number* zigZagNxN(int blkSize, int matrix[blkSize][blkSize]) {
     return zigZag;
 }
 
-number** unZigZagNxN(number *zigZag) {
-    number **matrix = (number **)malloc(BLK_SIZE * sizeof(number *));
-    for (int i = 0; i < BLK_SIZE; i++) {
-        matrix[i] = (number *)malloc(BLK_SIZE * sizeof(number));
-    }
+void unZigZagNxN(int blkSize, int blk[blkSize][blkSize], number *zigZag) {
     int i = 0, j = 0, index = 0;
+
     // Preenche a matriz com os valores do vetor zigZag
     while(index < BLK_SIZE * BLK_SIZE){
         // Verifica se a posição atual está dentro dos limites da matriz
         if(i >= 0 && i < BLK_SIZE && j >= 0 && j < BLK_SIZE) {
-            matrix[i][j] = zigZag[index++];
+            blk[i][j] = zigZag[index++];
         }
 
         // Move na diagonal
@@ -352,7 +349,6 @@ number** unZigZagNxN(number *zigZag) {
             }
         }
     }
-    return matrix;
 }
 
 //codificação por diferença do vetor zigZag

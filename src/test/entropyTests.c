@@ -95,8 +95,9 @@ void testEncodingDecoding() {
     }
     printf("\n");
 
-    number **matrixDec = unZigZagNxN(zigZagDec);
+    //number **matrixDec = unZigZagNxN(zigZagDec);
 
+    /*
     printf("\nMatriz Decodificada:\n");
     for (int i = 0; i < BLK_SIZE; i++) {
         for (int j = 0; j < BLK_SIZE; j++) {
@@ -110,4 +111,5 @@ void testEncodingDecoding() {
         free(matrix[i]);
     }
     free(matrix);
+    */
 }

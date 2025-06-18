@@ -13,6 +13,7 @@
 
     typedef struct bmp BMP;
     
+    BMP *bmpCreate(BIHEADER iHeader, BFHEADER fHeader, PIXELRGB** data);
     BMP *bmpRead(FILE *bmpPtr);
     bool bmpWrite(BMP *image, FILE *bmpPtr);
 

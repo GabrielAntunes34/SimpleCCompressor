@@ -22,7 +22,8 @@
     BMP *loadBmpImage(char *bmpName);
     bool writeBmpImage(char *bmpName, BMP *newImage);
 
-    bool writeCmpFile(char *binName, BIHEADER iHeader, BFHEADER fHeader, CMPHEADER cmpHeader, BITBUFFER *cmpData);
+    bool writeCmpFile(char *binName, BIHEADER iHeader, BFHEADER fHeader,
+        CMPHEADER cmpHeader, BITBUFFER *cmpY, BITBUFFER *cmpCb, BITBUFFER *cmpCr);
 
     // Funções de compressão / descompressão
     //bool compress(BMP *bmp);

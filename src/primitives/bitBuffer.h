@@ -19,6 +19,7 @@
     int bitBufferGetSize(BITBUFFER *bitBuffer);
     int bitBufferGetByteSize(BITBUFFER *bitBuffer);
     bool bitBufferInsert(BITBUFFER *bitBuffer, VECTOR *code);
+    bool bitBufferInsertChar(BITBUFFER *bitBuffer, unsigned char val);
     bool bitBufferClean(BITBUFFER *bitBuffer);
     bool bitBufferWrite(BITBUFFER *bitBuffer, FILE *pf);
     bool bitBufferReadBit(BITBUFFER *bitBuffer, int position);

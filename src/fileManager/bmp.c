@@ -6,6 +6,33 @@ struct bmp {
     PIXELRGB **data;
 };
 
+// Cria um bmp com parametros passados na memória pelo usuário
+// Devido ao processo de descompressão, data pode ser nulo
+BMP *bmpCreate(BIHEADER iHeader, BFHEADER fHeader, PIXELRGB** data) {
+    BMP *image;
+
+    // Alocando dinâmicamente o BMP
+    image = (BMP *) malloc(sizeof(BMP));
+    if(image == NULL) 
+        return NULL;
+
+    // Setando os cabeçalhos
+    image->iHeader = iHeader;
+    image->fHeader = fHeader;
+
+    // Verificando se é preciso alocar uma matrix para os pixeis
+    if(data == NULL) {
+        image->data = (PIXELRGB **) malloc(iHeader.bmpHeight * sizeof(PIXELRGB *));
+        for(int i = 0; i < iHeader.bmpHeight; i++) {
+            image->data[i] = (PIXELRGB *) malloc(iHeader.bmpWidth * sizeof(PIXELRGB));
+        }
+    }
+    else
+        image->data = data;
+
+    return image;
+}
+
 // Auxiliar para carregar todo o bitmap da imagem
 pixelRgb **loadBmpData(int width, int heigth, FILE *bmpPtr) {
     PIXELRGB **imgData;

@@ -188,3 +188,15 @@ int bitBufferGetSize(BITBUFFER *bitBuffer) {
         return BITBUFFER_ERROR;
     return bitBuffer->size;
 }
+
+// Insere um char dentro do bitBuffer (usada na descompressão)
+bool bitBufferInsertChar(BITBUFFER *bitBuffer, unsigned char val) {
+    if(bitBuffer == NULL)
+        return false;
+
+    // Verificando se o buffer já não atingiu seu limite
+    if(bitBuffer->occupied >= bitBuffer->size)
+        return false;
+    bitBuffer->buffer[bitBuffer->occupied] = val;
+    return true;
+}  

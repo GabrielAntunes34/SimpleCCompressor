@@ -40,7 +40,7 @@
 
     number* zigZagNxN(int blkSize, int matrix[blkSize][blkSize]);
 
-    number** unZigZagNxN(number *zigZag);
+    void unZigZagNxN(int blkSize, int blk[blkSize][blkSize], number *zigZag);
 
     number* zigZagDifference(number *zigZag);
 
