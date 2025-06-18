@@ -1,5 +1,6 @@
 #include "entropyTests.h"
 
+// Cria uma matriz NxN aleatória para testes
 int** generateRandomMatrix() {
     number **matrix = (number **)malloc(BLK_SIZE * sizeof(number *));
     for (int i = 0; i < BLK_SIZE; i++) {
@@ -11,12 +12,13 @@ int** generateRandomMatrix() {
     return matrix;
 }
 
+// Função de teste para codificação e decodificação
 void testEncodingDecoding() {
     number **matrix = generateRandomMatrix();
     number *zigZag;
+    number *zigZag2;
     RLEPairs rlePairs;
     bitBuffer *buffer = bitBufferCreate(2048);
-
 
     printf("Matriz NxN:\n");
     for (int i = 0; i < BLK_SIZE; i++) {
@@ -28,21 +30,33 @@ void testEncodingDecoding() {
 
     zigZag = zigZagNxN(matrix);
 
+    // Free na matriz original
+    for (int i = 0; i < BLK_SIZE; i++) {
+        free(matrix[i]);
+    }
+    free(matrix);
+
     printf("\nVetor ZigZag:\n");
     for (int i = 0; i < 64; i++) {
         printf("%3d ", zigZag[i]);
     }
     printf("\n");
 
-    zigZag = zigZagDifference(zigZag);
+    zigZag2 = zigZagDifference(zigZag);
+
+    // Free no vetor zigZag
+    free(zigZag);
 
     printf("\nVetor ZigZag:\n");
     for (int i = 0; i < 64; i++) {
-        printf("%3d ", zigZag[i]);
+        printf("%3d ", zigZag2[i]);
     }
     printf("\n");
 
-    rlePairs = runLengthEncoding(zigZag, NULL);
+    rlePairs = runLengthEncoding(zigZag2, NULL);
+
+    // Free no vetor zigZag2
+    free(zigZag2);
 
     printf("\nPares RLE:\n");
     for (int i = 0; i < rlePairs->size; i++) {
@@ -55,18 +69,16 @@ void testEncodingDecoding() {
     } else {
         printf("Falha na codificação Huffman.\n");
     }
-    printf("Tamanho do buffer: %d bytes\n", bitBufferGetByteSize(buffer));
-    printf("Bits ocupados: %d\n", bitBufferGetOccupiedBits(buffer));
-    printf("Bytes ocupados: %d\n", bitBufferGetByteSize(buffer));
-    printf("Buffer em binário:\n");
-    for (int i = 0; i < bitBufferGetByteSize(buffer); i++) {
-        printf("Byte %d: ", i);
-        printf("\n");
-    }
+
+    // Free no rlePairs
+    free(rlePairs->pairs);
+    free(rlePairs);
+
     printf("\nDecodificação Huffman:\n");
     RLEPairs decodedRLE = huffman_decoding(buffer);
     if (decodedRLE == NULL) {
         printf("Falha na decodificação Huffman.\n");
+        bitBufferDestroy(&buffer); // Libera buffer antes de retornar
         return;
     }
     printf("Decodificação RLE:\n");
@@ -75,27 +87,37 @@ void testEncodingDecoding() {
     }
     // Libera o buffer de bits
     bitBufferDestroy(&buffer);
+
     // Libera a memória alocada para o vetor RLE
     free(decodedRLE->pairs);
+
+    // Decodifica o vetor zigzag
+    number *zigZagDec = runLengthDecoding(decodedRLE);
+
+    // Libera decodedRLE após uso
     free(decodedRLE);
 
-    number *zigZagDec = runLengthDecoding(rlePairs);
-
     printf("\nVetor ZigZag Decodificado:\n");
     for (int i = 0; i < 64; i++) {
         printf("%3d ", zigZagDec[i]);
     }
     printf("\n");
 
-    zigZagDec = unZigZagDifference(zigZagDec);
+    number *zigZagDec2 = unZigZagDifference(zigZagDec);
+
+    // Libera zigZagDec após uso
+    free(zigZagDec);
 
     printf("\nVetor ZigZag Decodificado:\n");
     for (int i = 0; i < 64; i++) {
-        printf("%3d ", zigZagDec[i]);
+        printf("%3d ", zigZagDec2[i]);
     }
     printf("\n");
 
-    number **matrixDec = unZigZagNxN(zigZagDec);
+    number **matrixDec = unZigZagNxN(zigZagDec2);
+
+    // Libera zigZagDec2 após uso
+    free(zigZagDec2);
 
     printf("\nMatriz Decodificada:\n");
     for (int i = 0; i < BLK_SIZE; i++) {
@@ -105,9 +127,9 @@ void testEncodingDecoding() {
         printf("\n");
     }
 
-    // Libera a memória alocada
-    for (int i = 0; i < 8; i++) {
-        free(matrix[i]);
+    // Libera a memória alocada para matrixDec
+    for (int i = 0; i < BLK_SIZE; i++) {
+        free(matrixDec[i]);
     }
-    free(matrix);
+    free(matrixDec);
 }
