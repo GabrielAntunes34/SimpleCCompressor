@@ -159,3 +159,24 @@ bool bitBufferDestroy(BITBUFFER **bitBuffer) {
 
     return true;
 }
+
+// Função que lê o bit em uma posição específica do buffer
+bool bitBufferReadBit(BITBUFFER *bitBuffer, int position) {
+    if(bitBuffer == NULL || position < 0 || position >= bitBuffer->occupied) {
+        return false; // Posição inválida
+    }
+
+    // Calcula o índice do byte e o deslocamento do bit
+    int byteIndex = position / 8;
+    int bitOffset = position % 8;
+
+    // Retorna o valor do bit na posição especificada
+    return (bitBuffer->buffer[byteIndex] >> (7 - bitOffset)) & 1;
+}
+
+int bitBufferGetOccupiedBits(BITBUFFER *bitBuffer) {
+    if(bitBuffer == NULL) {
+        return BITBUFFER_ERROR; // Erro ao acessar o bitBuffer
+    }
+    return bitBuffer->occupied;
+}

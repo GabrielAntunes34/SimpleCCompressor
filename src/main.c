@@ -5,6 +5,7 @@
 #include "test/bmpTests.h"
 #include "test/compressTest.h"
 #include "test/jpegTests.h"
+#include "test/entropyTests.h"
 
 #include "primitives/matrix.h"
 #include "primitives/util.h"
@@ -26,14 +27,5 @@ int main() {
 
     compress(bmp1, testFile);
 
-    /*
-    DBMATRIX test = dbMatrixCreate(10, 16);
-    int pdH = calculateSample420Padding(test.lines, 8);
-    int pdW  = calculateSample420Padding(test.cols, 8);
-
-    printf("(H: %d, W:%d)\n", pdH, pdW);
-
-    dbMatrixDestroy(&test);
-    */
     return 0;
 }

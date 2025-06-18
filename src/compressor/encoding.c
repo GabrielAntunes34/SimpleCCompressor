@@ -1,7 +1,7 @@
 #include "encoding.h"
 #include "../primitives/bitBuffer.h"
 
-const AC_Huffman_Code ac_table[162] = {
+AC_Huffman_Code ac_table[162] = {
     {0, 0, "1010", 4},
     {0, 1, "00", 3},
     {0, 2, "01", 4},
@@ -153,7 +153,7 @@ const AC_Huffman_Code ac_table[162] = {
     {14, 8, "1111111111110010", 24},
     {14, 9, "1111111111110011", 25},
     {14, 10, "11111111111100100", 26},
-    {15, 0, "111111110111", 12}, // Extensão de Zeros
+    {15, 0, "111111110111", 12},
     {15, 1, "1111111111110101", 17},
     {15, 2, "1111111111110110", 18},
     {15, 3, "1111111111110111", 19},
@@ -166,18 +166,6 @@ const AC_Huffman_Code ac_table[162] = {
     {15, 10, "1111111111111110", 26}    
 };
 
-typedef struct rlepair_ {
-    int run;
-    int level;
-} rlepair;
-typedef rlepair *RLEPair;
-
-typedef struct rlepairs_ {
-    RLEPair pairs;
-    int size;
-} rlepairs;
-typedef rlepairs *RLEPairs;
-
 //Calcula a categoria de um valor (n de bits sem zeros a esquerda)
 int category(int value) {
     int num = abs(value);
@@ -187,6 +175,7 @@ int category(int value) {
     return cat;
 }
 
+//Busca o código AC na tabela de Huffman
 char* searchACTable(int run, int cat) {
     // Verifica se o run e o level estão dentro dos limites
     if (run < 0 || run > 15 || cat < -1024 || cat > 1023) {
@@ -203,21 +192,25 @@ char* searchACTable(int run, int cat) {
     return NULL;
 }
 
+// Converte uma string de '0's e '1's em um vetor de inteiros
 VECTOR* string_to_code(const char *str) {
     // Calcula o tamanho do código
-    int* size = strlen(str);
+    int size = strlen(str);
     VECTOR* code = vectorCreateAs(unsigned int, NULL);
     // Converte a string em um vetor de inteiros
-    for (int i = 0; i < *size; i++) {
-        vectorPushBack(code, str[i] - '0'); // Converte '0' e '1' para 0 e 1
+    for (int i = 0; i < size; i++) {
+        int pb = str[i] - '0';
+        vectorPushBack(code, &pb); // Converte '0' e '1' para 0 e 1
     }
     return code;
 }
 
+// Retorna o prefixo AC correspondente ao run e categoria
 VECTOR* getACPrefix(int run, int cat){
     return string_to_code(searchACTable(run, cat));
 }
 
+// Retorna o complemento de 1 do número em uma categoria específica
 VECTOR* get1sComplement(int number, int cat){
 
     // Verifica se o número está dentro dos limites
@@ -233,15 +226,17 @@ VECTOR* get1sComplement(int number, int cat){
     if (number > 0) {
         // Para números positivos, apenas converte para binário
         for (int i = 0; i < cat; i++) {
-            vectorPushBack(code, (absNumber >> (cat - 1 - i)) & 1); // Extrai cada bit
+            int pb = absNumber >> (cat - 1 - i) & 1;
+            vectorPushBack(code, &pb); // Extrai cada bit
         }
         return code;
     }
     // Para números negativos, converte para complemento de 1
     if (number < 0) {
         // Inverte os bits para o complemento de 1
-        for (int i = 0; i < vectorGetSize(code); i++) {
-            vectorPushBack(code, !((absNumber >> (cat - 1 - i)) & 1));
+        for (int i = 0; i < cat; i++) {
+            int pb = !((absNumber >> (cat - 1 - i)) & 1);
+            vectorPushBack(code, &pb);
         }
         return code;
     }
@@ -262,12 +257,12 @@ VECTOR* getACCode(int run, int number) {
 
     // Adiciona o prefixo AC ao vetor
     for (int i = 0; i < vectorGetSize(acPrefix); i++) {
-        vectorPushBack(acCode, vectorIndexAs(acPrefix, unsigned int, i));
+        vectorPushBack(acCode, &vectorIndexAs(acPrefix, unsigned int, i));
     }
 
     // Adiciona o complemento de 1 ao vetor
     for (int i = 0; i < vectorGetSize(complement); i++) {
-        vectorPushBack(acCode, vectorIndexAs(complement, unsigned int, i));
+        vectorPushBack(acCode, &vectorIndexAs(complement, unsigned int, i));
     }
 
     vectorDestroy(&acPrefix);
@@ -276,30 +271,28 @@ VECTOR* getACCode(int run, int number) {
     return acCode;
 }
 
-
-
 //Função que converte uma matriz 8x8 em um vetor 1D fazendo zigzag com o bloco da DCT para compressão
-number* zigZagNxN(number *matrix[N]) {
+number* zigZagNxN(number *matrix[BLK_SIZE]) {
     int i = 0, j = 0, index = 0;
-    number *zigZag = (number *)malloc(N * N * sizeof(number));
+    number *zigZag = (number *)malloc(BLK_SIZE * BLK_SIZE * sizeof(number));
     if (zigZag == NULL) {
         printf("Erro ao alocar memória para o vetor zigZag.\n");
         return NULL;
     }
     // Inicializa o vetor zigZag com zeros
-    for (int k = 0; k < N * N; k++) {
+    for (int k = 0; k < BLK_SIZE * BLK_SIZE; k++) {
         zigZag[k] = 0;
     }
     // Preenche o vetor zigZag com os valores da matriz
-    while(index < N * N){
+    while(index < BLK_SIZE * BLK_SIZE){
         // Verifica se a posição atual está dentro dos limites da matriz
-        if(i >= 0 && i < N && j >= 0 && j < N) {
+        if(i >= 0 && i < BLK_SIZE && j >= 0 && j < BLK_SIZE) {
             zigZag[index++] = matrix[i][j];
         }
 
         // Move na diagonal
         if((i + j) % 2 == 0) {
-            if(j == N - 1) {
+            if(j == BLK_SIZE - 1) {
                 i++;
             } else if(i == 0) {
                 j++;
@@ -308,7 +301,7 @@ number* zigZagNxN(number *matrix[N]) {
                 j++;
             }
         } else {
-            if(i == N - 1) {
+            if(i == BLK_SIZE - 1) {
                 j++;
             } else if(j == 0) {
                 i++;
@@ -322,21 +315,21 @@ number* zigZagNxN(number *matrix[N]) {
 }
 
 number** unZigZagNxN(number *zigZag) {
-    number **matrix = (number **)malloc(N * sizeof(number *));
-    for (int i = 0; i < N; i++) {
-        matrix[i] = (number *)malloc(N * sizeof(number));
+    number **matrix = (number **)malloc(BLK_SIZE * sizeof(number *));
+    for (int i = 0; i < BLK_SIZE; i++) {
+        matrix[i] = (number *)malloc(BLK_SIZE * sizeof(number));
     }
     int i = 0, j = 0, index = 0;
     // Preenche a matriz com os valores do vetor zigZag
-    while(index < N * N){
+    while(index < BLK_SIZE * BLK_SIZE){
         // Verifica se a posição atual está dentro dos limites da matriz
-        if(i >= 0 && i < N && j >= 0 && j < N) {
+        if(i >= 0 && i < BLK_SIZE && j >= 0 && j < BLK_SIZE) {
             matrix[i][j] = zigZag[index++];
         }
 
         // Move na diagonal
         if((i + j) % 2 == 0) {
-            if(j == N - 1) {
+            if(j == BLK_SIZE - 1) {
                 i++;
             } else if(i == 0) {
                 j++;
@@ -345,7 +338,7 @@ number** unZigZagNxN(number *zigZag) {
                 j++;
             }
         } else {
-            if(i == N - 1) {
+            if(i == BLK_SIZE - 1) {
                 j++;
             } else if(j == 0) {
                 i++;
@@ -360,36 +353,36 @@ number** unZigZagNxN(number *zigZag) {
 
 //codificação por diferença do vetor zigZag
 number* zigZagDifference(number *zigZag) {
-    number *zigZagDiff = (number *)malloc(N * N * sizeof(number));
+    number *zigZagDiff = (number *)malloc(BLK_SIZE * BLK_SIZE * sizeof(number));
     if (zigZagDiff == NULL) {
         printf("Erro ao alocar memória para o vetor zigZagDiff.\n");
         return NULL;
     }
     // Inicializa o vetor zigZagDiff com zeros
-    for (int k = 0; k < N * N; k++) {
+    for (int k = 0; k < BLK_SIZE * BLK_SIZE; k++) {
         zigZagDiff[k] = 0;
     }
     // Preenche o vetor zigZagDiff com as diferenças
     zigZagDiff[0] = zigZag[0];
-    for (int i = 1; i < N * N; i++) {
+    for (int i = 1; i < BLK_SIZE * BLK_SIZE; i++) {
         zigZagDiff[i] = zigZag[i] - zigZag[i - 1];
     }
     return zigZagDiff;
 }
 
 number* unZigZagDifference(number *zigZag) {
-    number *zigZagDiff = (number *)malloc(N * N * sizeof(number));
+    number *zigZagDiff = (number *)malloc(BLK_SIZE * BLK_SIZE * sizeof(number));
     if (zigZagDiff == NULL) {
         printf("Erro ao alocar memória para o vetor zigZagDiff.\n");
         return NULL;
     }
     // Inicializa o vetor zigZagDiff com zeros
-    for (int k = 0; k < N * N; k++) {
+    for (int k = 0; k < BLK_SIZE * BLK_SIZE; k++) {
         zigZagDiff[k] = 0;
     }
     // Preenche o vetor zigZagDiff com as diferenças
     zigZagDiff[0] = zigZag[0];
-    for (int i = 1; i < N * N; i++) {
+    for (int i = 1; i < BLK_SIZE * BLK_SIZE; i++) {
         zigZagDiff[i] = zigZag[i] + zigZagDiff[i - 1];
     }
     return zigZagDiff;
@@ -415,10 +408,10 @@ RLEPairs createRLEPairs(int size) {
 
 //Run Length Encoding (RLE) para compressão de dados
 RLEPairs runLengthEncoding(number *zigZag, int *size) {
-    RLEPairs rle = createRLEPairs(N * N);
+    RLEPairs rle = createRLEPairs(BLK_SIZE * BLK_SIZE);
     int index = 0;
     int count = 0;
-    for (int i = 0; i < N * N; i++) {
+    for (int i = 0; i < BLK_SIZE * BLK_SIZE; i++) {
         if (zigZag[i] == 0) {
             count++;
             if(count == 16) {
@@ -434,7 +427,7 @@ RLEPairs runLengthEncoding(number *zigZag, int *size) {
             count = 0;
         }
     }
-    rle->pairs[index].run = EOB; // Último run
+    rle->pairs[index].run = 0; // Último run
     rle->pairs[index].level = 0; // Indica o fim do bloco
     index++;
 
@@ -444,13 +437,13 @@ RLEPairs runLengthEncoding(number *zigZag, int *size) {
 
 //RunLength Decoding (RLD) para descompressão de dados
 number* runLengthDecoding(RLEPairs rle) {
-    number *zigZag = (number *)malloc(N * N * sizeof(number));
+    number *zigZag = (number *)malloc(BLK_SIZE * BLK_SIZE * sizeof(number));
     if (zigZag == NULL) {
         printf("Erro ao alocar memória para o vetor zigZag.\n");
         return NULL;
     }
     // Inicializa o vetor zigZag com zeros
-    for (int k = 0; k < N * N; k++) {
+    for (int k = 0; k < BLK_SIZE * BLK_SIZE; k++) {
         zigZag[k] = 0;
     }
     int index = 0;
@@ -458,7 +451,7 @@ number* runLengthDecoding(RLEPairs rle) {
         for (int j = 0; j < rle->pairs[i].run; j++) {
             zigZag[index++] = 0;
         }
-        if (rle->pairs[i].level != EOB) {
+        if (rle->pairs[i].level != 0) {
             zigZag[index++] = rle->pairs[i].level;
         } else {
             break;
@@ -467,6 +460,7 @@ number* runLengthDecoding(RLEPairs rle) {
     return zigZag;
 }
 
+// Função para codificar o buffer de bits usando a tabela de Huffman
 bool huffman_encoding(bitBuffer* buffer, RLEPairs rle){
 
     for (int i = 0; i < rle->size; i++) {
@@ -476,111 +470,107 @@ bool huffman_encoding(bitBuffer* buffer, RLEPairs rle){
             return false; // Erro ao obter o código AC
         }
         // Adiciona o código AC ao buffer de bits
-        for (int j = 0; j < vectorGetSize(acCode); j++) {
-            bitBufferPushBit(buffer, vectorIndexAs(acCode, unsigned int, j));
-        }
+        bitBufferInsert(buffer, acCode);
         vectorDestroy(&acCode);
     }
     return true;
 }
 
-/*
-==========================
-FUNÇÕES DE TESTE
-==========================
-*/
+// Decodifica um símbolo AC (run, category) do bitBuffer usando busca na tabela ac_table
+// Guarda posição atual em *pos e avança conforme leitura de bits
+// Retorna false em caso de erro (posição inválida ou código não encontrado)
+static bool decodeACSymbol(bitBuffer* buffer, int* pos, int* outRun, int* outCategory) {
+    char codeBuf[17];
+    int len = 0;
 
-//Gera uma matriz NxN de valores aleatórios
-number **generateRandomMatrix() {
-    number **matrix = (number **)malloc(N * sizeof(number *));
-    for (int i = 0; i < N; i++) {
-        matrix[i] = (number *)malloc(N * sizeof(number));
-        for (int j = 0; j < N; j++) {
-            if (rand() % 2 == 0) {
-                matrix[i][j] = 0; // Zeros para simular a compressão
-            } else {
-                matrix[i][j] = rand() % 256; // Valores aleatórios entre 0 e 255
+    while (true) {
+        // Verifica limites
+        if (*pos < 0 || *pos >= bitBufferGetOccupiedBits(buffer)) {
+            return false;
+        }
+        // Lê bit na posição atual e avança
+        bool bit = bitBufferReadBit(buffer, *pos);
+        (*pos)++;
+
+        // Acumula no buffer de código (máx. 16 bits)
+        if (len < 16) {
+            codeBuf[len++] = bit ? '1' : '0';
+            codeBuf[len] = '\0';
+        } else {
+            // Prefixo maior que o suportado
+            return false;
+        }
+
+        // Busca sequencial na tabela AC
+        for (int i = 0; i < 162; ++i) {
+            if (ac_table[i].total_length == len && strcmp(ac_table[i].prefix, codeBuf) == 0) {
+                *outRun = ac_table[i].run;
+                *outCategory = ac_table[i].category;
+                return true;
             }
         }
+        // Caso não encontre, continua lendo o próximo bit
     }
-    return matrix;
 }
 
-//Função de teste que gera uma matriz aleatória, imprime-a, converte para zigzag e imprime o resultado
-
-//Função de teste que gera uma matriz aleatória, imprime-a, aplica RLE e imprime o resultado
-void testEncodingDecoding() {
-    number **matrix = generateRandomMatrix();
-    number *zigZag;
-    RLEPairs rlePairs;
-
-    printf("Matriz NxN:\n");
-    for (int i = 0; i < N; i++) {
-        for (int j = 0; j < N; j++) {
-            printf("%3d ", matrix[i][j]);
+// Decodifica os bits de magnitude recuperando o valor do coeficiente
+static int decodeMagnitude(bitBuffer* buffer, int* pos, int category) {
+    if (category == 0) {
+        return 0;
+    }
+    unsigned int bits = 0;
+    // Lê category bits sequencialmente
+    for (int i = 0; i < category; ++i) {
+        if (*pos < 0 || *pos >= bitBufferGetOccupiedBits(buffer)) {
+            break;
         }
-        printf("\n");
+        bool bit = bitBufferReadBit(buffer, *pos);
+        (*pos)++;
+        bits = (bits << 1) | (bit ? 1 : 0);
     }
-
-    zigZag = zigZagNxN(matrix);
-
-    printf("\nVetor ZigZag:\n");
-    for (int i = 0; i < 64; i++) {
-        printf("%3d ", zigZag[i]);
+    unsigned int threshold = 1u << (category - 1);
+    if (bits >= threshold) {
+        return (int)bits;
     }
-    printf("\n");
-
-    zigZag = zigZagDifference(zigZag);
-
-    printf("\nVetor ZigZag:\n");
-    for (int i = 0; i < 64; i++) {
-        printf("%3d ", zigZag[i]);
-    }
-    printf("\n");
-
-    rlePairs = runLengthEncoding(zigZag, NULL);
-
-    printf("\nPares RLE:\n");
-    for (int i = 0; i < rlePairs->size; i++) {
-        printf("Run: %d, Level: %d\n", rlePairs->pairs[i].run, rlePairs->pairs[i].level);
-    }
-
-    number *zigZagDec = runLengthDecoding(rlePairs);
-
-
-    printf("\nVetor ZigZag Decodificado:\n");
-    for (int i = 0; i < 64; i++) {
-        printf("%3d ", zigZagDec[i]);
-    }
-    printf("\n");
-
-    zigZagDec = unZigZagDifference(zigZagDec);
-
-    printf("\nVetor ZigZag Decodificado:\n");
-    for (int i = 0; i < 64; i++) {
-        printf("%3d ", zigZagDec[i]);
-    }
-    printf("\n");
-
-    number **matrixDec = unZigZagNxN(zigZagDec);
-
-    printf("\nMatriz Decodificada:\n");
-    for (int i = 0; i < N; i++) {
-        for (int j = 0; j < N; j++) {
-            printf("%3d ", matrixDec[i][j]);
-        }
-        printf("\n");
-    }
-
-    // Libera a memória alocada
-    for (int i = 0; i < 8; i++) {
-        free(matrix[i]);
-    }
-    free(matrix);
+    // Ajuste para representar valores negativos
+    return (int)(bits - ((1u << category) - 1));
 }
 
-// Função principal para testar a conversão zigzag
-/*int main() {
-    testEncodingDecoding();
-    return 0;
-}*/
+// Decodifica todo o buffer em um vetor de pares RLE (RLEPairs)
+// Itera símbolos até encontrar EOB (0,0) ou processar ZRL (15,0)
+RLEPairs huffman_decoding(bitBuffer* buffer) {
+    RLEPairs rle = createRLEPairs(BLK_SIZE * BLK_SIZE);
+    int index = 0;
+    int pos = 0;  // posição atual em bits
+
+    while (true) {
+        int run, category;
+        if (!decodeACSymbol(buffer, &pos, &run, &category)) {
+            // Erro na decodificação Huffman
+            break;
+        }
+
+        // EOB: (0,0)
+        if (run == 0 && category == 0) {
+            rle->pairs[index].run = 0;
+            rle->pairs[index].level = 0;
+            index++;
+            break;
+        }
+        // ZRL: (15,0) -> representa 16 zeros
+        if (run == 15 && category == 0) {
+            rle->pairs[index].run = 15;
+            rle->pairs[index].level = 0;
+            index++;
+            continue;
+        }
+        // Coeficiente não-zero
+        int level = decodeMagnitude(buffer, &pos, category);
+        rle->pairs[index].run = run;
+        rle->pairs[index].level = level;
+        index++;
+    }
+
+    rle->size = index;
+    return rle;
+}

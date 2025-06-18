@@ -3,7 +3,7 @@
 #===============
 # Compilador e flages
 CC = gcc
-CFLAGS = -Wall -std=c99 
+CFLAGS = -Wall -std=c99 -lm
 
 # Diretórios de código fonte e destino
 SRC_DIR = src
