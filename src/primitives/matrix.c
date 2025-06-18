@@ -67,8 +67,6 @@ void dbMatrixGetBlock(DBMATRIX *mat, int blkSize, int blkOffset, double blk[blkS
 
     // Calculando os índices do bloco
     calcBLockPosition(mat, blkSize, blkOffset, &i, &j);
-    printf("(%d %d)\n", i, j);
-    printf("Tamanho de mat: (cols: %d lines: %d)\n", mat->cols, mat->lines);
 
     // Populando a matriz na stack com o novo bloco
     for(int k = 0; k < (blkSize * blkSize); k++) {
@@ -80,15 +78,9 @@ void dbMatrixGetBlock(DBMATRIX *mat, int blkSize, int blkOffset, double blk[blkS
             // Resetando o íncide para a coluna
             j -= blkSize;
             bj -= blkSize;
-            //printf("\n (bi:%d, bj%d)\n", bi, bj);
-
         } 
 
-        printf("oi %d de %d: i = %d e j = %d\n", k, (blkSize * blkSize), i, j);
-        //printf("blk: %.2lf\n", blk[bi][bj]);
-        //printf("mat: %.2lf\n", mat->matrix[i][j]);
         blk[bi][bj] = mat->matrix[i][j];
-        //printf("Aaaah\n");
         j++;
         bj++;
     }

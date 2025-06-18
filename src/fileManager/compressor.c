@@ -4,15 +4,30 @@
 // o downsampling e realiza o loop de compressão em cada bloco
 // Retornando um bitBuffer com os dados comprimidos
 void compressLoop(DBMATRIX *channel, BITBUFFER *cmpData, int blkQntdy, int quantTable) {
+    printf("%d\n", bitBufferGetOccupiedBits(cmpData));
+
     // Comprimindo cada bloco do canal
     for(int i = 0; i < blkQntdy; i++) {
         double block[8][8];
-        int auxBlock[8][8];
+        int qntBlock[8][8];
 
         // codificação com perda
-        dbMatrixGetBlock(&channel, BLK_SIZE, i, block);
+        dbMatrixGetBlock(channel, BLK_SIZE, i, block);
         dct(BLK_SIZE, block, true);
-        quantize(BLK_SIZE, block, auxBlock, LUM_QNT_TBL);
+        quantize(BLK_SIZE, block, qntBlock, LUM_QNT_TBL);
+        
+        // Codificação entrópica
+        int *zigZagVet = zigZagNxN(BLK_SIZE, qntBlock);
+        int *zigZagDiff =  zigZagDifference(zigZagVet);
+        RLEPairs rle = runLengthEncoding(zigZagDiff, NULL);
+        huffman_encoding(cmpData, rle);
+
+        // Desalocando vetores auxiliares
+        free(zigZagVet);
+        zigZagVet = NULL;
+        free(zigZagDiff);
+        zigZagDiff = NULL;
+        free(rle);      // EU SEI... TA VAZANDO OS PARES INTERNOS AQUI
 
         /*
         COISAS PARA COLOCAR NO DECOMPRESS LOOP
@@ -24,7 +39,7 @@ void compressLoop(DBMATRIX *channel, BITBUFFER *cmpData, int blkQntdy, int quant
 }
 
 DBMATRIX *decompressLoop() {
-
+    return NULL;
 }
 
 bool compress(char *entryBmp, char *exitBin) {
@@ -60,10 +75,16 @@ bool compress(char *entryBmp, char *exitBin) {
     cmpHeader.crBlocks = dbMatrixGetBlockQntd(&spCr, BLK_SIZE);
 
     // Comprimindo cada canal
+    printf("size: %d\n", 2 * channelY.cols * channelY.lines);
     BITBUFFER *cmpData = bitBufferCreate(2 * channelY.cols * channelY.lines);
+    printf("%d\n", 8 * bitBufferGetSize(cmpData));
+
     compressLoop(&channelY, cmpData, cmpHeader.yBlocks, LUM_QNT_TBL);
     compressLoop(&spCb, cmpData, cmpHeader.cbBlocks, CROM_QNT_TBL);
     compressLoop(&spCr, cmpData, cmpHeader.crBlocks, CROM_QNT_TBL);
+    printf("Occupied: %d\n", bitBufferGetOccupiedBits(cmpData));
+    printf("%d\n", 8 * bitBufferGetSize(cmpData));
+
 
     // Escrevendo o binário final
     bool checkWrite;
@@ -116,4 +137,6 @@ bool decompress(char *entryBin, char *exitBmp) {
     dbMatrixDestroy(&newCb);
     dbMatrixDestroy(&newCr);
     */
+
+    return false;
 }

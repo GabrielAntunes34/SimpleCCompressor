@@ -272,27 +272,31 @@ VECTOR* getACCode(int run, int number) {
 }
 
 //Função que converte uma matriz 8x8 em um vetor 1D fazendo zigzag com o bloco da DCT para compressão
-number* zigZagNxN(number *matrix[BLK_SIZE]) {
+number* zigZagNxN(int blkSize, int matrix[blkSize][blkSize]) {
     int i = 0, j = 0, index = 0;
-    number *zigZag = (number *)malloc(BLK_SIZE * BLK_SIZE * sizeof(number));
+
+    // Alocando o vetor retulstante
+    number *zigZag = (number *)malloc(blkSize * blkSize * sizeof(number));
     if (zigZag == NULL) {
         printf("Erro ao alocar memória para o vetor zigZag.\n");
         return NULL;
     }
-    // Inicializa o vetor zigZag com zeros
-    for (int k = 0; k < BLK_SIZE * BLK_SIZE; k++) {
+
+    // Inicializando o vetor zigZag com zeros
+    for (int k = 0; k < blkSize * blkSize; k++) {
         zigZag[k] = 0;
     }
-    // Preenche o vetor zigZag com os valores da matriz
-    while(index < BLK_SIZE * BLK_SIZE){
+
+    // Preenchendo o vetor zigZag com os valores da matriz
+    while(index < blkSize * blkSize){
         // Verifica se a posição atual está dentro dos limites da matriz
-        if(i >= 0 && i < BLK_SIZE && j >= 0 && j < BLK_SIZE) {
+        if(i >= 0 && i < blkSize && j >= 0 && j < blkSize) {
             zigZag[index++] = matrix[i][j];
         }
 
         // Move na diagonal
         if((i + j) % 2 == 0) {
-            if(j == BLK_SIZE - 1) {
+            if(j == blkSize - 1) {
                 i++;
             } else if(i == 0) {
                 j++;
@@ -301,7 +305,7 @@ number* zigZagNxN(number *matrix[BLK_SIZE]) {
                 j++;
             }
         } else {
-            if(i == BLK_SIZE - 1) {
+            if(i == blkSize - 1) {
                 j++;
             } else if(j == 0) {
                 i++;

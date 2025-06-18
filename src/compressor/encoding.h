@@ -38,7 +38,7 @@
     } rlepairs;
     typedef rlepairs *RLEPairs;
 
-    number* zigZagNxN(number *matrix[BLK_SIZE]);
+    number* zigZagNxN(int blkSize, int matrix[blkSize][blkSize]);
 
     number** unZigZagNxN(number *zigZag);
 

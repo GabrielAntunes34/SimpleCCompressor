@@ -15,6 +15,7 @@
     #include "../primitives/bitBuffer.h"
 
     #include "../compressor/sampler.h"
+    #include "../compressor/encoding.h"
     #include "../compressor/dct.h"
 
     //int calculateCompressTax();

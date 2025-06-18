@@ -26,7 +26,7 @@ void testEncodingDecoding() {
         printf("\n");
     }
 
-    zigZag = zigZagNxN(matrix);
+    //zigZag = zigZagNxN(BLK_SIZE, matrix);
 
     printf("\nVetor ZigZag:\n");
     for (int i = 0; i < 64; i++) {
