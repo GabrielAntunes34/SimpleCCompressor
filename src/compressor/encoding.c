@@ -514,7 +514,7 @@ static bool decodeACSymbol(bitBuffer* buffer, int* pos, int* outRun, int* outCat
 }
 
 // Decodifica os bits de magnitude recuperando o valor do coeficiente
-static int decodeMagnitude(bitBuffer* buffer, int* pos, int category) {
+static int decodeCoefficient(bitBuffer* buffer, int* pos, int category) {
     if (category == 0) {
         return 0;
     }
@@ -547,6 +547,7 @@ RLEPairs huffman_decoding(bitBuffer* buffer) {
         int run, category;
         if (!decodeACSymbol(buffer, &pos, &run, &category)) {
             // Erro na decodificação Huffman
+            printf("Erro na leitura de um simbolo durante a decodificação huffman");
             break;
         }
 
@@ -565,7 +566,7 @@ RLEPairs huffman_decoding(bitBuffer* buffer) {
             continue;
         }
         // Coeficiente não-zero
-        int level = decodeMagnitude(buffer, &pos, category);
+        int level = decodeCoefficient(buffer, &pos, category);
         rle->pairs[index].run = run;
         rle->pairs[index].level = level;
         index++;
