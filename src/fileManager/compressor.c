@@ -26,14 +26,14 @@ void compressLoop(BITBUFFER *cmpData, DBMATRIX *channel, int blkQntdy, int quant
 }
 
 // Realiza a compressão do algorítimo JPEG
-bool compress(char *entryBmp, char *exitBin) {
+int compress(char *entryBmp, char *exitBin) {
     BMP *bmp;
     CMPHEADER cHeader;    // Cabeçalho customizado do arquivo comprimido
 
     // Obtendo os dados da imagem
     bmp = loadBmpImage(entryBmp);
     if(bmp == NULL)
-        return false;
+        return -1.0;
     int width = bmpGetWidth(bmp);
     int heigth = bmpGetHeigth(bmp);
 
@@ -76,15 +76,23 @@ bool compress(char *entryBmp, char *exitBin) {
     bool checkWrite;
     checkWrite = writeCmpFile(exitBin, bmpGetInfoHeader(bmp), bmpGetFileHeader(bmp), cHeader, cmpData);
     if(!checkWrite)
-        return false;
+        return -1.0;
     
+    // Calculando a taxa de compressão
+    printf("original: %d", 3 * (width * heigth));
+    printf("Novo: %d", cHeader.cmpBytes);
+
+    int compressTax = (3 * width * heigth) / cHeader.cmpBytes;
+
     // Desalocando a memória restante
     bmpDestroy(&bmp);
     bitBufferDestroy(&cmpData);
     dbMatrixDestroy(&channelY);
     dbMatrixDestroy(&spCb);
     dbMatrixDestroy(&spCr);
-    return true;
+
+    // Retornando a taxa de compressão obtida
+    return compressTax;
 }
 
 // Função auxiliar que descomprime os bits do binário comprimido

@@ -18,9 +18,20 @@ int main(int argc, char *argv[]) {
     char* entrada = argv[2];
     char* saida = argv[3];
 
+    // Usado para armazenar a taxa de compressão obtida
+    int compressTax = 0;
+    bool checkDecompress;
+
     // Tomando a ação de acordo com a flag
     if (strcmp(flag, "-c") == 0) {
-        compress(entrada, saida);
+        compressTax = compress(entrada, saida);
+
+        if(compressTax == -1)
+            printf("Compressão interrompida devido a algum erro\n");
+        else {
+            printf("Compressão concluida com sucesso!\n");
+            printf("Taxa obtida: %d por cento\n", compressTax);
+        }
     }
     else if (strcmp(flag, "-d") == 0) {
         decompress(entrada, saida);

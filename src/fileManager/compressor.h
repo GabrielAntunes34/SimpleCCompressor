@@ -21,7 +21,7 @@
     #include "../compression/dct.h"
 
     //int calculateCompressTax();
-    bool compress(char *entryBmp, char *exitBin);
+    int compress(char *entryBmp, char *exitBin);
     bool decompress(char *entryBin, char *exitBmp);
 
 #endif
