@@ -30,9 +30,6 @@ PIXELRGB pixelConvertYcbcrToRgb(PIXELYCBCR *pixel) {
     pixel->cb -= 128;
     pixel->cr -= 128;
 
-    if(pixel->cb > 127.9 && pixel->cb < 129.0) printf("%lf\n\n", pixel->cb);
-    if(pixel->cr > 127.9 && pixel->cr < 129.0) printf("%lf\n\n", pixel->cr);
-
     // Aplicando a fórmula de conversão para todos os campos, e convertendo
     // para unsigned char.
     PIXELRGB newPixel;
@@ -40,15 +37,11 @@ PIXELRGB pixelConvertYcbcrToRgb(PIXELYCBCR *pixel) {
     double r = (pixel->y + (1.402 * pixel->cr));
     double g = (pixel->y - (0.344 * pixel->cb) - (0.714 * pixel->cr));
     double b = (pixel->y + (1.772 * pixel->cb));
-    
-    if(r > 255) printf("r: %lf\n", r);
 
     // Adequando os erros de arredondamento para [0, 255]
     r = min(255.0, max(0.0, r));
     g = min(255.0, max(0.0, g));
     b = min(255.0, max(0.0, b));
-
-    if(r > 255) printf("r: %lf\n\n", r);
 
     // Aplicando a conversão de tipo
     newPixel.r = (unsigned char) r;

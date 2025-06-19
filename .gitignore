@@ -3,4 +3,6 @@ main
 obj
 .DS_Store
 test.bmp
-dctTest.bmp
+decTest.bmp
+
+/test

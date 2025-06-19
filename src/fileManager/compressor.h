@@ -5,18 +5,20 @@
     #include <stdbool.h>
 
     #include "fileManager.h"
-    #include "bfHeader.h"
-    #include "bfInfoHeader.h"
     #include "cmpHeader.h"
-    #include "bmp.h"
+
+    #include "../image/bfHeader.h"
+    #include "../image/bmp.h"
+    #include "../image/bfInfoHeader.h"
+    #include "../image/pixel.h"
     
     #include "../primitives/util.h"
-    #include "../primitives/pixel.h"
     #include "../primitives/bitBuffer.h"
 
-    #include "../compressor/sampler.h"
-    #include "../compressor/encoding.h"
-    #include "../compressor/dct.h"
+    #include "../compression/sampler.h"
+    #include "../compression/spacialEncoding.h"
+    #include "../compression/huffman.h"
+    #include "../compression/dct.h"
 
     //int calculateCompressTax();
     bool compress(char *entryBmp, char *exitBin);

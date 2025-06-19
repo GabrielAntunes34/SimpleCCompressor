@@ -2,19 +2,7 @@
 #include <stdlib.h>
 
 // Funções de teste
-#include "test/bmpTests.h"
-#include "test/compressTest.h"
-#include "test/jpegTests.h"
-#include "test/entropyTests.h"
-
-#include "primitives/matrix.h"
-#include "primitives/util.h"
-#include "primitives/pixel.h"
-
-#include "fileManager/bfHeader.h"
-#include "fileManager/bfInfoHeader.h"
 #include "fileManager/fileManager.h"
-#include "fileManager/bmp.h"
 #include "fileManager/compressor.h"
 
 
@@ -26,7 +14,7 @@ int main() {
     char *testFile = "test.bmp";
     char *testFile2 = "decTest.bmp";
 
-    compress(bmp4, testFile);
+    compress(bmp3, testFile);
     decompress(testFile, testFile2);
     //testEncodingDecoding();
 

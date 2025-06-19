@@ -1,32 +1,5 @@
 #include "compressor.h"
 
-void printDblMat(int size, double mat[size][size]) {
-    for(int i = 0; i < size; i++) {
-        for(int j = 0; j < size; j++) {
-            printf("%.2lf, ", mat[i][j]);
-        }
-        printf("\n");
-    }
-    printf("\n");
-}
-
-void printIntMat(int size, int mat[size][size]) {
-    for(int i = 0; i < size; i++) {
-        for(int j = 0; j < size; j++) {
-            printf("%d, ", mat[i][j]);
-        }
-        printf("\n");
-    }
-    printf("\n");
-}
-
-void printIntVet(int size, int *vet) {
-    for(int i = 0; i < size; i++) {
-        printf("%d, ", vet[i]);
-    }
-    printf("\n");
-}
-
 // Função auxiliar que recebe um canal da imagem que já sofreu
 // o downsampling e realiza o loop de compressão em cada bloco
 // Retornando um bitBuffer com os dados comprimidos
@@ -37,32 +10,22 @@ void compressLoop(BITBUFFER *cmpData, DBMATRIX *channel, int blkQntdy, int quant
 
         // codificação com perda
         dbMatrixGetBlock(channel, BLK_SIZE, i, block);
-        //printDblMat(8, block);
-
         dct(BLK_SIZE, block, true);
-        //printDblMat(8, block);
-
         quantize(BLK_SIZE, block, qntBlock, quantTable);
-        //printIntMat(8, qntBlock);
         
         // Codificação entrópica
         int *zigZagVet = zigZagNxN(BLK_SIZE, qntBlock);
-        //printIntVet(64, zigZagVet);
-        //int *zigZagDiff =  zigZagDifference(zigZagVet);
         RLEPairs rle = runLengthEncoding(zigZagVet, NULL);
-        //printf("Huffman:\n");
         huffman_encoding(cmpData, rle);
-
 
         // Desalocando vetores auxiliares
         free(zigZagVet);
         zigZagVet = NULL;
-        //free(zigZagDiff);
-        //zigZagDiff = NULL;
-        free(rle);      // EU SEI... TA VAZANDO OS PARES INTERNOS AQUI
+        destroyRLEPairs(&rle);
     }
 }
 
+// Realiza a compressão do algorítimo JPEG
 bool compress(char *entryBmp, char *exitBin) {
     BMP *bmp;
     CMPHEADER cHeader;    // Cabeçalho customizado do arquivo comprimido
@@ -101,7 +64,7 @@ bool compress(char *entryBmp, char *exitBin) {
     compressLoop(cmpData, &spCb, cHeader.cbBlocks, CROM_QNT_TBL);
     compressLoop(cmpData, &spCr, cHeader.crBlocks, CROM_QNT_TBL);
 
-    printf("Occupied: %d\n", bitBufferGetOccupiedBits(cmpData));
+    // Calculando o número de bytes do arquivo comprimido
     int bits = bitBufferGetOccupiedBits(cmpData);
     if(bits % 8 != 0)
         bits = bits / 8 + 1;
@@ -121,80 +84,44 @@ bool compress(char *entryBmp, char *exitBin) {
     dbMatrixDestroy(&channelY);
     dbMatrixDestroy(&spCb);
     dbMatrixDestroy(&spCr);
-
     return true;
 }
 
+// Função auxiliar que descomprime os bits do binário comprimido
+// Nos canais YCbCr da imagem antes de se executar o downsampling
 void decompressLoop(DBMATRIX *channel, BITBUFFER *cmpChannel, int *bitPos, int blkQntd, int quantTable) {
-    // Descomprimindo cada bloco do canal
-    
     for(int i = 0; i < blkQntd; i++) {
         double blk[8][8];
         int quantBlk[8][8];
-        
-        printf("pos: %d\n", *bitPos);
-        printf("%d: ", i);
 
         // Decodificando a compressão entrópica
         RLEPairs rle = huffman_decoding(cmpChannel, bitPos);
         int *differencedCode = runLengthDecoding(rle);
-        //int *zigZagVet = unZigZagDifference(rle);
         unZigZagNxN(BLK_SIZE, quantBlk, differencedCode);
-
-        /*
-        for(int j = 0; j < 8; j++) {
-            for(int k = 0; k < 8; j++) {
-                printf("%d, ", quantBlk[i][j]);
-            }
-            printf("\n");
-        }
-        */
-
-        printf("\n");
 
         // Decodificando a compressão com perda
         dequantize(BLK_SIZE, quantBlk, blk, quantTable);
         inverseDct(BLK_SIZE, blk, true);
         dbMatrixSetBlock(channel, BLK_SIZE, i, blk);
+
+        // Desalocando vetores dinâmicos
+        free(differencedCode);
+        differencedCode = NULL;
+        destroyRLEPairs(&rle);
     }
 }
 
+// Realiza a descompressão do algorítimo JPEG
 bool decompress(char *entryBin, char *exitBmp) {
-    //====================
-    // Leitura do Bin
-    //====================
     BIHEADER iHeader;
     BFHEADER fHeader;
     CMPHEADER cHeader;
+    BITBUFFER *cmpData;
 
-    // Abrindo o arquivo aqui por enquanto
-    FILE *binPtr = fopen(entryBin, "rb");
-    if(binPtr == NULL) {
-        printf("Error\n");
-        return false;
-    }
+    // Lendo o arquivo
+    cmpData = loadCmpFile(entryBin, &iHeader, &fHeader, &cHeader);
 
-    // lendo os cabeçalhos doidos
-    bfHeaderRead(&fHeader, binPtr);
-    biHeaderRead(&iHeader, binPtr);
-    cmpHeaderRead(&cHeader, binPtr);
-
-    // Lendo cada canal comprimido
-    char byte = 0;
-
-    BITBUFFER *cmpData = bitBufferCreate(cHeader.yBlocks * cHeader.yBlocks);
-    for(int i = 0; i < cHeader.cmpBytes; i++) {
-        fread(&byte, sizeof(unsigned char), 1, binPtr);
-        bitBufferInsertChar(cmpData, byte);
-    }
-
-    printf("Aquiiii4\n");
-
-    // Fechando o arquivo
-    fclose(binPtr);
-
-    printf("Banana\n");
-
+    // Recriando as matrizes dos canais originais
     DBMATRIX Y = dbMatrixCreate(iHeader.bmpHeight, iHeader.bmpWidth);
     DBMATRIX spCb = dbMatrixCreate(iHeader.bmpHeight/2 + cHeader.cromPdHeigth, iHeader.bmpWidth/2 + cHeader.cromPdWidth);
     DBMATRIX spCr = dbMatrixCreate(iHeader.bmpHeight/2 + cHeader.cromPdHeigth, iHeader.bmpWidth/2 + cHeader.cromPdWidth);
@@ -205,25 +132,16 @@ bool decompress(char *entryBin, char *exitBmp) {
     decompressLoop(&spCb, cmpData, &bitPosition, cHeader.cbBlocks, CROM_QNT_TBL);
     decompressLoop(&spCr, cmpData, &bitPosition, cHeader.crBlocks, CROM_QNT_TBL);
 
-    printf("Test 2 \n");
-
     // Revertendo o downsampling 
     DBMATRIX Cb = upSample420(&spCb, cHeader.cromPdHeigth, cHeader.cromPdWidth);
     DBMATRIX Cr = upSample420(&spCr, cHeader.cromPdHeigth, cHeader.cromPdWidth);
     dbMatrixDestroy(&spCb);
     dbMatrixDestroy(&spCr);
 
-    printf("Test 3\n");
-
     // Reconvertendo para rgb e salvando no bmp
     BMP *bmp = bmpCreate(iHeader, fHeader, NULL);
-
-    printf("Test4\n");
-
     int heigth = iHeader.bmpHeight;
     int width = iHeader.bmpWidth;
-
-    printf("Og: %d\nNew: %d\n", heigth, Cr.lines);
 
     PIXELYCBCR px;
     PIXELRGB rgbPx;
@@ -238,8 +156,6 @@ bool decompress(char *entryBin, char *exitBmp) {
         }
     }
 
-    printf("Test5\n");
-
     // Reescrevendo em um novo bmp
     writeBmpImage(exitBmp, bmp);
 
@@ -249,10 +165,5 @@ bool decompress(char *entryBin, char *exitBmp) {
     dbMatrixDestroy(&Y);
     dbMatrixDestroy(&Cb);
     dbMatrixDestroy(&Cr);
-
     return true;
-}
-
-bool testCompressDecompress() {
-    return false;
 }

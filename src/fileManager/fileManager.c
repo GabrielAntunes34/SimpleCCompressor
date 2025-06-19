@@ -86,6 +86,37 @@ bool writeBmpImage(char *bmpName, BMP *newImage) {
     return true;
 }
 
+bitBuffer *loadCmpFile(char *binName, BIHEADER *iHeader, BFHEADER *fHeader, CMPHEADER *cHeader) {
+    BITBUFFER *cmpData;
+
+    // Abrindo o arquivo
+    FILE *binPtr = fopen(binName, "rb");
+    if(binPtr == NULL) {
+        displayError("Não foi possível abrir o arquivo comprimido\n");
+        return false;
+    }
+
+    // lendo os cabeçalhos doidos
+    bfHeaderRead(fHeader, binPtr);
+    biHeaderRead(iHeader, binPtr);
+    cmpHeaderRead(cHeader, binPtr);
+
+    // Lendo cada canal comprimido
+    char byte = 0;      // Auxiliar para a leitura dos bytes
+
+    cmpData = bitBufferCreate((*cHeader).yBlocks * (*cHeader).yBlocks);
+    for(int i = 0; i < (*cHeader).cmpBytes; i++) {
+        fread(&byte, sizeof(unsigned char), 1, binPtr);
+        bitBufferInsertChar(cmpData, byte);
+    }
+
+    // Fechando o arquivo
+    fclose(binPtr);
+
+    return cmpData;
+}
+
+
 bool writeCmpFile(char *binName, BIHEADER iHeader, BFHEADER fHeader, CMPHEADER cHeader, BITBUFFER *cmpData) {
     if(binName == NULL || cmpData == NULL)
         return false;
@@ -99,8 +130,6 @@ bool writeCmpFile(char *binName, BIHEADER iHeader, BFHEADER fHeader, CMPHEADER c
         displayError("Erro ao abrir o novo arquivo");
         return false;
     }
-
-    cmpHeaderPrint(&cHeader);
 
     // Escrevendo os cabeçalhos
     bfHeaderWrite(&fHeader, binPtr);

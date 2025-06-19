@@ -3,12 +3,13 @@
     #include <stdio.h>
     #include <stdlib.h>
     #include <stdbool.h>
+    
     #include "bfHeader.h"
     #include "bfInfoHeader.h"
+    #include "pixel.h"
 
     #include "../primitives/matrix.h"
     #include "../primitives/vector.h"
-    #include "../primitives/pixel.h"
     #include "../primitives/util.h"
 
     typedef struct bmp BMP;

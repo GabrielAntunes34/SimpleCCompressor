@@ -45,11 +45,6 @@ bool bitBufferIsEmpty(BITBUFFER *bitBuffer) {
 int bitBufferGetByteSize(BITBUFFER *bitBuffer) {
     if(bitBuffer == NULL)
         return BITBUFFER_ERROR;
-
-    //printf("Ocupados: %d\n", bitBuffer->occupied);
-
-    //if(bitBuffer->occupied % 8 != 0)
-    //    return (bitBuffer->occupied / 8) + 1; //Ocorre apenas ao fim do arquivo
     return (bitBuffer->occupied / 8);
 }
 
@@ -66,8 +61,6 @@ bool bitBufferInsert(BITBUFFER *bitBuffer, VECTOR *code) {
         // Desloca todos os bits para a esquerda e imprime o valor no menos significativo
         bitBuffer->buffer[currIndex] = (bitBuffer->buffer[currIndex] << 1);
         bitBuffer->buffer[currIndex] = (bitBuffer->buffer[currIndex] | vectorIndexAs(code, unsigned char, i));
-
-        //printf("Inserindo %d em %d\n", vectorIndexAs(code, unsigned int, i), currIndex);
 
         // Atualizando o número de bits ocupados e verificando se é necessário mudar o byte
         bitBuffer->occupied++;
@@ -110,10 +103,8 @@ bool bitBufferWrite(BITBUFFER *bitBuffer, FILE *pf) {
     // O byte formado será escrito de trás para frente, com os zeros que sobram
     // Sendo considerados descartáveis no arquivo
     for(int i = 0; i < indexes; i++) {
-        if((i == (indexes - 1)) && (bitBuffer->occupied % 8 != 0)) {
-            printf("\nFinal shift: %d\n", (8 - (bitBuffer->occupied % 8)));
+        if((i == (indexes - 1)) && (bitBuffer->occupied % 8 != 0))
             bitBuffer->buffer[i] = bitBuffer->buffer[i] << (8 - (bitBuffer->occupied % 8)); 
-        }
         fwrite(&bitBuffer->buffer[i], sizeof(char), 1, pf);
 
     }

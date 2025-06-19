@@ -5,11 +5,11 @@
     #include <stdbool.h>
 
     #include "../primitives/util.h"
-    #include "../primitives/pixel.h"
-    #include "../fileManager/bfHeader.h"
-    #include "../fileManager/bfInfoHeader.h"
+    #include "../image/pixel.h"
+    #include "../image/bfHeader.h"
+    #include "../image/bfInfoHeader.h"
     #include "../fileManager/fileManager.h"
-    #include "../fileManager/bmp.h"
+    #include "../image/bmp.h"
 
     // Testes para as funções de IO dos arquivos bmp e seus TAD's
     // Internos

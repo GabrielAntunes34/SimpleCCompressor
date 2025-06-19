@@ -51,6 +51,6 @@ bool cmpHeaderPrint(CMPHEADER *header) {
     printf("Número de blocos no canal Cr: %d\n", header->crBlocks);
     printf("Padding adcionado na altura das croôminancias: %d\n", header->cromPdHeigth);
     printf("Padding adcionado na largura das croôminancias: %d\n", header->cromPdWidth);
-    printf("Número de bytes finais no arquivo: %d\n", header->cmpBytes);
+    printf("Número final de bytes no arquivo: %d\n", header->cmpBytes);
     return true;
 }
