@@ -15,6 +15,10 @@ bool isBmpValidForCompression(BIHEADER *h) {
     if(h->bmpHeight < 8 || h->bmpWidth > 1280 || h->bmpHeight < 8 || h->bmpHeight > 800)
         return false;
 
+    // Verificando se o canal de cores da imagem é o adequado
+    if(h->bitCount != RGB_24_bit)
+        return false;
+
     // Verificando se o arquivo já não tem nenhuma compressão
     if(h->compression != BI_RGB)
         return false;
