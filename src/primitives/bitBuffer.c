@@ -1,5 +1,7 @@
 #include "bitBuffer.h"
 
+#define MAX_CHAR 255
+
 struct bitBuffer {
     int size;       // Tamanho do vetor de chars (ou seja, do buffer)
     int occupied;   // bits ocupados pelos códigos em todo o buffer
@@ -23,7 +25,8 @@ BITBUFFER *bitBufferCreate(int size) {
         bitBuffer = NULL;
         return NULL;
     }
-    bitBufferClean(bitBuffer);
+    bitBuffer->occupied = 0;
+    //bitBufferClean(bitBuffer);
 
     return bitBuffer;
 }
@@ -43,8 +46,10 @@ int bitBufferGetByteSize(BITBUFFER *bitBuffer) {
     if(bitBuffer == NULL)
         return BITBUFFER_ERROR;
 
-    if(bitBuffer->occupied % 8 != 0)
-        return (bitBuffer->occupied / 8) + 1; //Ocorre apenas ao fim do arquivo
+    //printf("Ocupados: %d\n", bitBuffer->occupied);
+
+    //if(bitBuffer->occupied % 8 != 0)
+    //    return (bitBuffer->occupied / 8) + 1; //Ocorre apenas ao fim do arquivo
     return (bitBuffer->occupied / 8);
 }
 
@@ -59,8 +64,10 @@ bool bitBufferInsert(BITBUFFER *bitBuffer, VECTOR *code) {
 
     for(int i = 0; i < vectorGetSize(code); i++) {
         // Desloca todos os bits para a esquerda e imprime o valor no menos significativo
-        bitBuffer->buffer[currIndex] = bitBuffer->buffer[currIndex] << 1;
-        bitBuffer->buffer[currIndex] = bitBuffer->buffer[currIndex] | vectorIndexAs(code, unsigned char, i);
+        bitBuffer->buffer[currIndex] = (bitBuffer->buffer[currIndex] << 1);
+        bitBuffer->buffer[currIndex] = (bitBuffer->buffer[currIndex] | vectorIndexAs(code, unsigned char, i));
+
+        //printf("Inserindo %d em %d\n", vectorIndexAs(code, unsigned int, i), currIndex);
 
         // Atualizando o número de bits ocupados e verificando se é necessário mudar o byte
         bitBuffer->occupied++;
@@ -133,12 +140,12 @@ void bitBufferPrint(const void *bitBuffer) {
 
     BITBUFFER *bf = (BITBUFFER *) bitBuffer;
 
-    for(int i = 0; i < bf->size; i++) {
+    for(int i = 0; i < (bf->occupied / 8) + 1; i++) {
         printf("[%d]: ", i);
         printCharBinaryBE(bf->buffer[i]);
         printf("\n");
     }
-    printf("Occupation: %d of %d\n", bf->occupied + 1, (bf->size * 8));
+    printf("Occupation: %d of %d\n", bf->occupied, (bf->size * 8));
 
     return;
 }
@@ -195,8 +202,9 @@ bool bitBufferInsertChar(BITBUFFER *bitBuffer, unsigned char val) {
         return false;
 
     // Verificando se o buffer já não atingiu seu limite
-    if(bitBuffer->occupied >= bitBuffer->size)
+    if((bitBuffer->occupied / 8) >= bitBuffer->size)
         return false;
-    bitBuffer->buffer[bitBuffer->occupied] = val;
+    bitBuffer->buffer[bitBuffer->occupied / 8] = val;
+    bitBuffer->occupied += 8;
     return true;
 }  

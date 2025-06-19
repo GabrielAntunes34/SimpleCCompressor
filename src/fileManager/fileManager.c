@@ -86,8 +86,8 @@ bool writeBmpImage(char *bmpName, BMP *newImage) {
     return true;
 }
 
-bool writeCmpFile(char *binName, BIHEADER iHeader, BFHEADER fHeader, CMPHEADER cmpHeader, BITBUFFER *cmpY, BITBUFFER *cmpCb, BITBUFFER *cmpCr) {
-    if(binName == NULL || cmpY == NULL || cmpCb == NULL || cmpCr == NULL)
+bool writeCmpFile(char *binName, BIHEADER iHeader, BFHEADER fHeader, CMPHEADER cHeader, BITBUFFER *cmpData) {
+    if(binName == NULL || cmpData == NULL)
         return false;
     
     FILE *binPtr;
@@ -100,15 +100,15 @@ bool writeCmpFile(char *binName, BIHEADER iHeader, BFHEADER fHeader, CMPHEADER c
         return false;
     }
 
+    cmpHeaderPrint(&cHeader);
+
     // Escrevendo os cabeçalhos
     bfHeaderWrite(&fHeader, binPtr);
     biHeaderWrite(&iHeader, binPtr);
-    //cmpHeaderWrite(&cmpHeader, binPtr);
+    cmpHeaderWrite(&cHeader, binPtr);
 
     // escrevendo os dados
-    bitBufferWrite(cmpY, binPtr);
-    bitBufferWrite(cmpCb, binPtr);
-    bitBufferWrite(cmpCr, binPtr);
+    bitBufferWrite(cmpData, binPtr);
 
     fclose(binPtr);
     return true;

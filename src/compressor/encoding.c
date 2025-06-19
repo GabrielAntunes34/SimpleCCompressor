@@ -411,6 +411,7 @@ RLEPairs runLengthEncoding(number *zigZag, int *size) {
     RLEPairs rle = createRLEPairs(BLK_SIZE * BLK_SIZE);
     int index = 0;
     int count = 0;
+
     for (int i = 0; i < BLK_SIZE * BLK_SIZE; i++) {
         if (zigZag[i] == 0) {
             count++;
@@ -470,6 +471,8 @@ bool huffman_encoding(bitBuffer* buffer, RLEPairs rle){
             return false; // Erro ao obter o código AC
         }
         // Adiciona o código AC ao buffer de bits
+        //vectorPrintAs(acCode, int);
+
         bitBufferInsert(buffer, acCode);
         vectorDestroy(&acCode);
     }
@@ -486,10 +489,14 @@ static bool decodeACSymbol(bitBuffer* buffer, int* pos, int* outRun, int* outCat
     while (true) {
         // Verifica limites
         if (*pos < 0 || *pos >= bitBufferGetOccupiedBits(buffer)) {
+            //printf("ocupados: %d\n", bitBufferGetOccupiedBits(buffer));
+            //printf("Pos: %d\n", *pos);
+            printf("Sou eu\n");
             return false;
         }
         // Lê bit na posição atual e avança
         bool bit = bitBufferReadBit(buffer, *pos);
+        printf("%d", bit);
         (*pos)++;
 
         // Acumula no buffer de código (máx. 16 bits)
@@ -497,11 +504,18 @@ static bool decodeACSymbol(bitBuffer* buffer, int* pos, int* outRun, int* outCat
             codeBuf[len++] = bit ? '1' : '0';
             codeBuf[len] = '\0';
         } else {
-            // Prefixo maior que o suportado
+            printf("AquiiiiiiAqui\n");
+            printf("PosDec: %d", *pos);
             return false;
         }
 
         // Busca sequencial na tabela AC
+        printf("codBuf:");
+        for(int i = 0; i < 16; i++) {
+            printf("%c ", codeBuf[i]);
+        }
+        printf("\n");
+
         for (int i = 0; i < 162; ++i) {
             if (ac_table[i].total_length == len && strcmp(ac_table[i].prefix, codeBuf) == 0) {
                 *outRun = ac_table[i].run;
@@ -513,7 +527,7 @@ static bool decodeACSymbol(bitBuffer* buffer, int* pos, int* outRun, int* outCat
     }
 }
 
-// Decodifica os bits de magnitude recuperando o valor do coeficiente
+// Decodifica o valor do coeficiente
 static int decodeCoefficient(bitBuffer* buffer, int* pos, int category) {
     if (category == 0) {
         return 0;
@@ -538,14 +552,13 @@ static int decodeCoefficient(bitBuffer* buffer, int* pos, int category) {
 
 // Decodifica todo o buffer em um vetor de pares RLE (RLEPairs)
 // Itera símbolos até encontrar EOB (0,0) ou processar ZRL (15,0)
-RLEPairs huffman_decoding(bitBuffer* buffer) {
+RLEPairs huffman_decoding(bitBuffer* buffer, int *pos) {
     RLEPairs rle = createRLEPairs(BLK_SIZE * BLK_SIZE);
     int index = 0;
-    int pos = 0;  // posição atual em bits
 
     while (true) {
         int run, category;
-        if (!decodeACSymbol(buffer, &pos, &run, &category)) {
+        if (!decodeACSymbol(buffer, pos, &run, &category)) {
             // Erro na decodificação Huffman
             printf("Erro na leitura de um simbolo durante a decodificação huffman");
             break;
@@ -566,7 +579,7 @@ RLEPairs huffman_decoding(bitBuffer* buffer) {
             continue;
         }
         // Coeficiente não-zero
-        int level = decodeCoefficient(buffer, &pos, category);
+        int level = decodeCoefficient(buffer, pos, category);
         rle->pairs[index].run = run;
         rle->pairs[index].level = level;
         index++;

@@ -26,8 +26,33 @@ int main() {
     char *testFile = "test.bmp";
     char *testFile2 = "decTest.bmp";
 
-    compress(bmp3, testFile);
+    //compress(bmp1, testFile);
     //decompress(testFile, testFile2);
+    testEncodingDecoding();
 
+    /*
+    BITBUFFER *bf = bitBufferCreate(3);
+    int vals[15] = {1, 1, 1, 0, 0, 0, 0, 0, 0, 1, 1, 1, 0, 0, 0};
+    
+    VECTOR *vec = vectorCreateAs(int, NULL);
+    for(int i = 0; i < 8; i++) {
+        vectorPushBack(vec, &vals[i]);
+    }
+    vectorPrintAs(vec, int);
+    bitBufferInsert(bf, vec);
+    bitBufferPrint(bf);
+
+    VECTOR *vecTwo = vectorCreateAs(int, NULL);
+    for(int i = 8; i < 15; i++) {
+        vectorPushBack(vecTwo, &vals[i]);
+        //printf("vals: %d, ", vals[i]);
+    }
+    //printf("\n");
+    vectorPrintAs(vecTwo, int);
+    bitBufferInsert(bf, vecTwo);
+    bitBufferPrint(bf);
+
+    bitBufferDestroy(&bf);
+    */
     return 0;
 }

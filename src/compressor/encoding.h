@@ -54,6 +54,6 @@
 
     bool huffman_encoding(bitBuffer* buffer, RLEPairs rle);
 
-    RLEPairs huffman_decoding(bitBuffer* buffer);
+    RLEPairs huffman_decoding(bitBuffer* buffer, int *pos);
 
 #endif

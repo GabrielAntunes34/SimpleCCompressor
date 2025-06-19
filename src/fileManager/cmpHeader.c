@@ -15,9 +15,7 @@ bool cmpHeaderRead(CMPHEADER *header, FILE *filePtr) {
     fread(&header->crBlocks, sizeof(int), 1, filePtr);
     fread(&header->cromPdHeigth, sizeof(int), 1, filePtr);
     fread(&header->cromPdWidth, sizeof(int), 1, filePtr);
-    fread(&header->yCmpBytes, sizeof(int), 1, filePtr);
-    fread(&header->cbCmpBytes, sizeof(int), 1, filePtr);
-    fread(&header->crCmpBytes, sizeof(int), 1, filePtr);
+    fread(&header->cmpBytes, sizeof(int), 1, filePtr);
 
     return true;
 }
@@ -37,9 +35,7 @@ bool cmpHeaderWrite(CMPHEADER *header, FILE *filePtr) {
     fwrite(&header->crBlocks, sizeof(int), 1, filePtr);
     fwrite(&header->cromPdHeigth, sizeof(int), 1, filePtr);
     fwrite(&header->cromPdWidth, sizeof(int), 1, filePtr);
-    fread(&header->yCmpBytes, sizeof(int), 1, filePtr);
-    fread(&header->cbCmpBytes, sizeof(int), 1, filePtr);
-    fread(&header->crCmpBytes, sizeof(int), 1, filePtr);
+    fwrite(&header->cmpBytes, sizeof(int), 1, filePtr);
 
     return true;
 }
@@ -55,8 +51,6 @@ bool cmpHeaderPrint(CMPHEADER *header) {
     printf("Número de blocos no canal Cr: %d\n", header->crBlocks);
     printf("Padding adcionado na altura das croôminancias: %d\n", header->cromPdHeigth);
     printf("Padding adcionado na largura das croôminancias: %d\n", header->cromPdWidth);
-    printf("Número de bytes finais do canal y: %d\n", header->yCmpBytes);
-    printf("Número de bytes finais do canal Cb: %d\n", header->cbCmpBytes);
-    printf("Número de bytes finais do canal Cr: %d\n", header->crCmpBytes);
+    printf("Número de bytes finais no arquivo: %d\n", header->cmpBytes);
     return true;
 }
