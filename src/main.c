@@ -26,9 +26,9 @@ int main() {
     char *testFile = "test.bmp";
     char *testFile2 = "decTest.bmp";
 
-    //compress(bmp1, testFile);
-    //decompress(testFile, testFile2);
-    testEncodingDecoding();
+    compress(bmp4, testFile);
+    decompress(testFile, testFile2);
+    //testEncodingDecoding();
 
     /*
     BITBUFFER *bf = bitBufferCreate(3);

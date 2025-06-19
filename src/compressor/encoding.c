@@ -489,14 +489,10 @@ static bool decodeACSymbol(bitBuffer* buffer, int* pos, int* outRun, int* outCat
     while (true) {
         // Verifica limites
         if (*pos < 0 || *pos >= bitBufferGetOccupiedBits(buffer)) {
-            //printf("ocupados: %d\n", bitBufferGetOccupiedBits(buffer));
-            //printf("Pos: %d\n", *pos);
-            printf("Sou eu\n");
             return false;
         }
         // Lê bit na posição atual e avança
         bool bit = bitBufferReadBit(buffer, *pos);
-        printf("%d", bit);
         (*pos)++;
 
         // Acumula no buffer de código (máx. 16 bits)
@@ -510,14 +506,9 @@ static bool decodeACSymbol(bitBuffer* buffer, int* pos, int* outRun, int* outCat
         }
 
         // Busca sequencial na tabela AC
-        printf("codBuf:");
-        for(int i = 0; i < 16; i++) {
-            printf("%c ", codeBuf[i]);
-        }
-        printf("\n");
-
         for (int i = 0; i < 162; ++i) {
-            if (ac_table[i].total_length == len && strcmp(ac_table[i].prefix, codeBuf) == 0) {
+            int pfxLen = (int)strlen(ac_table[i].prefix);
+            if (pfxLen == len && strcmp(ac_table[i].prefix, codeBuf) == 0) {
                 *outRun = ac_table[i].run;
                 *outCategory = ac_table[i].category;
                 return true;
