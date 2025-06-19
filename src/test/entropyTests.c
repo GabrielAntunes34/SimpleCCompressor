@@ -13,12 +13,25 @@ int** generateRandomMatrix() {
 }
 
 // Função de teste para codificação e decodificação
+// Função de teste para codificação e decodificação
 void testEncodingDecoding() {
-    number **matrix = generateRandomMatrix();
+    //number **matrix = generateRandomMatrix();
     number *zigZag;
     number *zigZag2;
     RLEPairs rlePairs;
     bitBuffer *buffer = bitBufferCreate(2048);
+
+    int matrixDec[0][0];
+    int matrix[8][8] = {
+        {1, 2, 3, 4, 0, 0, 0, 0},
+        {2, 2, 3, 0, 0, 0, 0, 0},
+        {1, 2, 0, 0, 0, 0, 0, 0},
+        {3, 2, 0, 0, 0, 0, 0, 0},
+        {1, 2, 0, 0, 0, 0, 0, 0},
+        {1, 2, 0, 0, 0, 0, 0, 0},
+        {1, 1, 0, 0, 0, 0, 0, 0},
+        {1, 2, 0, 0, 0, 0, 0, 0},
+    };
 
     printf("Matriz NxN:\n");
     for (int i = 0; i < BLK_SIZE; i++) {
@@ -28,13 +41,7 @@ void testEncodingDecoding() {
         printf("\n");
     }
 
-    //zigZag = zigZagNxN(BLK_SIZE, matrix);
-
-    // Free na matriz original
-    for (int i = 0; i < BLK_SIZE; i++) {
-        free(matrix[i]);
-    }
-    free(matrix);
+    zigZag = zigZagNxN(BLK_SIZE, matrix);
 
     printf("\nVetor ZigZag:\n");
     for (int i = 0; i < 64; i++) {
@@ -70,12 +77,15 @@ void testEncodingDecoding() {
         printf("Falha na codificação Huffman.\n");
     }
 
+    bitBufferPrint(buffer);
+
     // Free no rlePairs
     free(rlePairs->pairs);
     free(rlePairs);
 
     printf("\nDecodificação Huffman:\n");
-    RLEPairs decodedRLE = huffman_decoding(buffer);
+    int pos = 0;
+    RLEPairs decodedRLE = huffman_decoding(buffer, &pos);
     if (decodedRLE == NULL) {
         printf("Falha na decodificação Huffman.\n");
         bitBufferDestroy(&buffer); // Libera buffer antes de retornar
@@ -114,9 +124,8 @@ void testEncodingDecoding() {
     }
     printf("\n");
 
-    //number **matrixDec = unZigZagNxN(zigZagDec);
+    unZigZagNxN(8, matrixDec, zigZagDec);
 
-    /*
     printf("\nMatriz Decodificada:\n");
     for (int i = 0; i < BLK_SIZE; i++) {
         for (int j = 0; j < BLK_SIZE; j++) {
@@ -124,10 +133,4 @@ void testEncodingDecoding() {
         }
         printf("\n");
     }
-
-    // Libera a memória alocada para matrixDec
-    for (int i = 0; i < BLK_SIZE; i++) {
-        free(matrixDec[i]);
-    }
-    free(matrix);
 }

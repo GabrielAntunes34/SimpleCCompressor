@@ -5,14 +5,15 @@
     #include <stdbool.h>
 
     #include "../primitives/util.h"
-    #include "../primitives/pixel.h"
-    #include "../fileManager/bfHeader.h"
-    #include "../fileManager/bfInfoHeader.h"
+    #include "../image/pixel.h"
+    #include "../image/bfHeader.h"
+    #include "../image/bfInfoHeader.h"
     #include "../fileManager/fileManager.h"
-    #include "../fileManager/bmp.h"
-    #include "../compressor/encoding.h"
-    #include "../compressor/sampler.h"
-    #include "../compressor/dct.h"
+    #include "../image/bmp.h"
+    #include "../compression/spacialEncoding.h"
+    #include "../compression/huffman.h"
+    #include "../compression/sampler.h"
+    #include "../compression/dct.h"
 
     int** generateRandomMatrix();
     void testEncodingDecoding();

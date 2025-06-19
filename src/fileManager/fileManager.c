@@ -15,6 +15,10 @@ bool isBmpValidForCompression(BIHEADER *h) {
     if(h->bmpHeight < 8 || h->bmpWidth > 1280 || h->bmpHeight < 8 || h->bmpHeight > 800)
         return false;
 
+    // Verificando se o canal de cores da imagem é o adequado
+    if(h->bitCount != RGB_24_bit)
+        return false;
+
     // Verificando se o arquivo já não tem nenhuma compressão
     if(h->compression != BI_RGB)
         return false;
@@ -86,8 +90,39 @@ bool writeBmpImage(char *bmpName, BMP *newImage) {
     return true;
 }
 
-bool writeCmpFile(char *binName, BIHEADER iHeader, BFHEADER fHeader, CMPHEADER cmpHeader, BITBUFFER *cmpY, BITBUFFER *cmpCb, BITBUFFER *cmpCr) {
-    if(binName == NULL || cmpY == NULL || cmpCb == NULL || cmpCr == NULL)
+bitBuffer *loadCmpFile(char *binName, BIHEADER *iHeader, BFHEADER *fHeader, CMPHEADER *cHeader) {
+    BITBUFFER *cmpData;
+
+    // Abrindo o arquivo
+    FILE *binPtr = fopen(binName, "rb");
+    if(binPtr == NULL) {
+        displayError("Não foi possível abrir o arquivo comprimido\n");
+        return false;
+    }
+
+    // lendo os cabeçalhos doidos
+    bfHeaderRead(fHeader, binPtr);
+    biHeaderRead(iHeader, binPtr);
+    cmpHeaderRead(cHeader, binPtr);
+
+    // Lendo cada canal comprimido
+    char byte = 0;      // Auxiliar para a leitura dos bytes
+
+    cmpData = bitBufferCreate((*cHeader).yBlocks * (*cHeader).yBlocks);
+    for(int i = 0; i < (*cHeader).cmpBytes; i++) {
+        fread(&byte, sizeof(unsigned char), 1, binPtr);
+        bitBufferInsertChar(cmpData, byte);
+    }
+
+    // Fechando o arquivo
+    fclose(binPtr);
+
+    return cmpData;
+}
+
+
+bool writeCmpFile(char *binName, BIHEADER iHeader, BFHEADER fHeader, CMPHEADER cHeader, BITBUFFER *cmpData) {
+    if(binName == NULL || cmpData == NULL)
         return false;
     
     FILE *binPtr;
@@ -103,12 +138,10 @@ bool writeCmpFile(char *binName, BIHEADER iHeader, BFHEADER fHeader, CMPHEADER c
     // Escrevendo os cabeçalhos
     bfHeaderWrite(&fHeader, binPtr);
     biHeaderWrite(&iHeader, binPtr);
-    //cmpHeaderWrite(&cmpHeader, binPtr);
+    cmpHeaderWrite(&cHeader, binPtr);
 
     // escrevendo os dados
-    bitBufferWrite(cmpY, binPtr);
-    bitBufferWrite(cmpCb, binPtr);
-    bitBufferWrite(cmpCr, binPtr);
+    bitBufferWrite(cmpData, binPtr);
 
     fclose(binPtr);
     return true;

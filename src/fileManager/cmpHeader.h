@@ -13,9 +13,7 @@
         int crBlocks;              // Número de blocos em cr
         int cromPdWidth;           // Padding na largura de cb e cr
         int cromPdHeigth;          // Padding na altura de cb e cr
-        int yCmpBytes;             // Número de bytes comprimidos final de Y
-        int cbCmpBytes;            // Número de bytes comprimidos final de cb
-        int crCmpBytes;            // Número de bytes comprimidos final de cr
+        int cmpBytes;              // Número de bytes comprimidos
     } CMPHEADER;
 
     bool cmpHeaderRead(CMPHEADER *header, FILE *filePtr);

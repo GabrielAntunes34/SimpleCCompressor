@@ -4,7 +4,7 @@
     #include <stdlib.h>
 
     #include "../primitives/matrix.h"
-    #include "../primitives/pixel.h"
+    #include "../image/pixel.h"
     #include "../primitives/util.h"
 
     // Funções para aplicar subamostragem na etapa de tratamento

@@ -4,7 +4,7 @@
     #include <stdlib.h>
     #include <stdbool.h>
 
-    #include "util.h"
+    #include "../primitives/util.h"
 
     // Define um tipo pixel para o formato rgb (usual das imagens
     // bmp)

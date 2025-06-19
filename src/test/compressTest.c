@@ -97,7 +97,7 @@ void testSampler(char *bmpEntry, char *bmpExit) {
 
 // Aplica a DCT e faz o retorno em uma matriz hardcodada
 void testDct() {
-        double blk[8][8] = {
+    double blk[8][8] = {
         {255.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0},
         {0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,},
         {0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,},
